@@ -59,6 +59,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
 	TSubclassOf<class AActor> p_weapon;
 
+	//Player Stats
+	float clipsize = 2;
+	float ammo = 80;
+	float life = 100;
+
 	
 	UTP_WeaponComponent* CurrentWeaponComponent;
 

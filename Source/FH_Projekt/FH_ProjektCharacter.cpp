@@ -36,7 +36,9 @@ AFH_ProjektCharacter::AFH_ProjektCharacter()
 	Mesh1P->CastShadow = false;
 	//Mesh1P->SetRelativeRotation(FRotator(0.9f, -19.19f, 5.2f));
 	Mesh1P->SetRelativeLocation(FVector(-30.f, 0.f, -150.f));
-
+	ammo = 80;
+	life = 100;
+	clipsize = 2;
 }
 
 void AFH_ProjektCharacter::BeginPlay()
@@ -88,9 +90,11 @@ void AFH_ProjektCharacter::Attack()
 	}
 
 	// Überprüfen, ob die Animationsmontage zugewiesen ist
-	if (shoot_anim)
+	if (shoot_anim && clipsize != 0)
 	{
 		AnimInstance->Montage_Play(shoot_anim, 1.0f);
+		CurrentWeaponComponent->Fire(this);
+		clipsize -= 1;
 	}
 	else
 	{
@@ -98,7 +102,7 @@ void AFH_ProjektCharacter::Attack()
 	}
 
 	// Unabhängig von der Animation feuert die Waffe
-	if (CurrentWeaponComponent)
+	/*if (CurrentWeaponComponent)
 	{
 		CurrentWeaponComponent->Fire(this);
 		
@@ -106,15 +110,16 @@ void AFH_ProjektCharacter::Attack()
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Kein CurrentWeaponComponent zum Feuern."));
-	}
+	}*/
 }
 
 void AFH_ProjektCharacter::Reload()
 {
 	UAnimInstance* animInstance = GetMesh1P()->GetAnimInstance();
-	if (animInstance != nullptr)
+	if (animInstance != nullptr )
 	{
 		animInstance->Montage_Play(reload_anim, 1.0f);
+		clipsize = 2;
 	}
 }
 

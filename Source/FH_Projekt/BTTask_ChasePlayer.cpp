@@ -41,7 +41,7 @@ EBTNodeResult::Type UBTTask_ChasePlayer::ExecuteTask(UBehaviorTreeComponent& aTr
     FVector pLoc = pAIController->GetBB()->GetValueAsVector(EnemyKeyss::TargetLocation);
     if (pLoc.IsNearlyZero())
     {
-        UE_LOG(LogTemp, Error, TEXT("UBTTask_ChasePlayer: Target Location is invalid or zero"));
+        //UE_LOG(LogTemp, Error, TEXT("UBTTask_ChasePlayer: Target Location is invalid or zero"));
         return EBTNodeResult::Failed;
     }
     //UE_LOG(LogTemp, Warning, TEXT("UBTTask_ChasePlayer: Target Location retrieved from Blackboard: %s"), *pLoc.ToString());
@@ -49,7 +49,7 @@ EBTNodeResult::Type UBTTask_ChasePlayer::ExecuteTask(UBehaviorTreeComponent& aTr
     // Attempt to move the AI to the player's location
     if (pAIController->MoveToLocation(pLoc))
     {
-        UE_LOG(LogTemp, Warning, TEXT("UBTTask_ChasePlayer: AI moving to Target Location: %s"), *pLoc.ToString());
+        //UE_LOG(LogTemp, Warning, TEXT("UBTTask_ChasePlayer: AI moving to Target Location: %s"), *pLoc.ToString());
     }
     else
     {

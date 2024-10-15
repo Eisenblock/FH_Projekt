@@ -18,9 +18,7 @@ class FH_PROJEKT_API UTP_WeaponComponent : public USkeletalMeshComponent
 
 public:
 	
-	/** Projectile class to spawn */
-	UPROPERTY(EditDefaultsOnly, Category = Projectile)
-	TSubclassOf<class AFH_ProjektProjectile> ProjectileClass;
+
 
 	/** Gun muzzle's offset from the characters location */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)
@@ -41,7 +39,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sound")
 	UNiagaraSystem* muzzle_flash;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* FireAction;
 
 	/** Sets default values for this component's properties */

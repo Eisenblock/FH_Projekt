@@ -19,7 +19,7 @@ EBTNodeResult::Type UBTTask_FindPlayer::ExecuteTask(UBehaviorTreeComponent& aTre
     NodeName = TEXT("Find Player Location");
 
     // Log when the task starts executing
-    UE_LOG(LogTemp, Warning, TEXT("UBTTask_FindPlayer: Executing Task - Finding Player Location"));
+    //UE_LOG(LogTemp, Warning, TEXT("UBTTask_FindPlayer: Executing Task - Finding Player Location"));
 
     // Get AI Controller
     AEnemy_Controller* pAIController = Cast<AEnemy_Controller>(aTreeComp.GetAIOwner());
@@ -67,7 +67,7 @@ EBTNodeResult::Type UBTTask_FindPlayer::ExecuteTask(UBehaviorTreeComponent& aTre
     }
 
     // Log before finishing task
-    UE_LOG(LogTemp, Warning, TEXT("UBTTask_FindPlayer: Task Finished Successfully"));
+    //UE_LOG(LogTemp, Warning, TEXT("UBTTask_FindPlayer: Task Finished Successfully"));
 
     // Finish execution
     FinishLatentTask(aTreeComp, EBTNodeResult::Succeeded);

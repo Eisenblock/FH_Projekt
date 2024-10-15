@@ -12,6 +12,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "Animation/AnimInstance.h"
 #include "Engine/LocalPlayer.h"
+#include "Enemy.h"
 #include "Engine/World.h"
 
 // Sets default values for this component's properties
@@ -56,7 +57,29 @@ void UTP_WeaponComponent::Fire(AFH_ProjektCharacter* TargetCharacter)
 
 			if (bHit && onHit.GetActor() != nullptr)
 			{
-				UE_LOG(LogTemp, Log, TEXT("Line Trace hit: %s"), *onHit.GetActor()->GetName());
+				AActor* HitActor = onHit.GetActor();  // Der getroffene Actor
+
+				// Versuche, den Actor auf AEnemy zu casten
+				AEnemy* HitEnemy = Cast<AEnemy>(HitActor);
+
+				if (HitEnemy)
+				{
+					// Erfolgreiches Casting: Der getroffene Actor ist ein AEnemy
+					if (HitEnemy->ActorHasTag(FName("Enemy")))  // Überprüfe den Tag
+					{
+						UE_LOG(LogTemp, Log, TEXT("Line Trace hit enemy with tag: %s"), *HitEnemy->GetName());
+						HitEnemy->GetDmgEnemy(100);
+					}
+					else
+					{
+						UE_LOG(LogTemp, Log, TEXT("Line Trace hit enemy, but it does not have the tag: %s"), *HitEnemy->GetName());
+					}
+				}
+				else
+				{
+					// Das Casting ist fehlgeschlagen, der Actor ist kein AEnemy
+					UE_LOG(LogTemp, Log, TEXT("Line Trace hit actor, but it's not an AEnemy: %s"), *HitActor->GetName());
+				}
 			}
 			else
 			{

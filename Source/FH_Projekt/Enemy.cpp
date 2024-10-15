@@ -10,7 +10,7 @@ AEnemy::AEnemy()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	
-
+	Tags.Add(FName("Enemy"));
 	
 	
 }
@@ -26,7 +26,21 @@ void AEnemy::BeginPlay()
 void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	EnemyDead();
+}
 
+void AEnemy::GetDmgEnemy(float dmg)
+{
+	life -= 100;
+	UE_LOG(LogTemp, Warning, TEXT("Enemy life after damage: %f"), life);
+}
+
+void AEnemy::EnemyDead()
+{
+	if (life <= 0) 
+	{
+		Destroy();
+	}
 }
 
 // Called to bind functionality to input
