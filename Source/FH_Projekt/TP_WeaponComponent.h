@@ -37,22 +37,27 @@ public:
 	USoundBase* empty_sound;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sound")
+	USoundBase* reload_sound;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sound")
 	UNiagaraSystem* muzzle_flash;
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* FireAction;
 
-	/** Sets default values for this component's properties */
+
 	UTP_WeaponComponent();
 
-	/** Attaches the actor to a FirstPersonCharacter */
-	UFUNCTION(BlueprintCallable, Category="Weapon")
 	bool AttachWeapon(AFH_ProjektCharacter* TargetCharacter);
-
-	/** Make the weapon Fire a Projectile */
-	UFUNCTION(BlueprintCallable, Category="Weapon")
 	void Fire(AFH_ProjektCharacter* TargetCharacter);
+	void lostAmmo();
+	void GetAmmo_R();
+
+	float attackSpeed;
+	int32 current_ammo = 8;
+	int32 max_ammo = 80;
+	int32 clipsize;
 
 protected:
 	/** Ends gameplay for this component. */
@@ -62,4 +67,6 @@ protected:
 private:
 	/** The Character holding this weapon*/
 	AFH_ProjektCharacter* Character;
+
+
 };

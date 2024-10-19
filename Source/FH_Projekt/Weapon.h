@@ -14,22 +14,25 @@ class FH_PROJEKT_API AWeapon : public AActor
 
 public:
 	// Weapon Mesh
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	USkeletalMeshComponent* weaponMesh;
 
 	// Fire sound
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sound")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
 	USoundBase* fire_sound;
 
 	// Empty sound
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sound")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
 	USoundBase* empty_sound;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	USoundBase* reload_sound;
+
 	// Muzzle offset
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GamePlay")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GamePlay")
 	FVector MuzzleOffset = FVector(100.f, 0.f, 10.0f);
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GamePlay")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GamePlay")
 	UNiagaraSystem* muzzle_flash;
 
 	// Weapon component
@@ -37,11 +40,14 @@ public:
 	UTP_WeaponComponent* weaponComponent;
 
 	// Ammo variables
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GamePlay")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GamePlay")
 	int32 current_ammo = 8;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GamePlay")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GamePlay")
 	int32 max_ammo = 80;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GamePlay")
+	float attackSpeed;
 
 	// Sets default values for this actor's properties
 	AWeapon();

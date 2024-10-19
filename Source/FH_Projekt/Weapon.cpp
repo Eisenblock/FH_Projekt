@@ -13,26 +13,35 @@ AWeapon::AWeapon()
 
 	weaponComponent = CreateDefaultSubobject<UTP_WeaponComponent>(TEXT("WeaponComponent"));
 	weaponComponent->SetupAttachment(RootComponent);
-	current_ammo = 8;
-	max_ammo = 80;
+
 
 }
 
 // Called when the game starts or when spawned
 void AWeapon::BeginPlay()
 {
-	Super::BeginPlay();
-	
-	weaponComponent->fire_sound = fire_sound;
-	weaponComponent->empty_sound = empty_sound;
-	//weaponComponent->muzzle_flash = muzzle_flash;
-	weaponComponent->MuzzleOffset = MuzzleOffset;
+    Super::BeginPlay();
+
+    if (weaponComponent != nullptr)
+    {
+        weaponComponent->fire_sound = fire_sound;
+        weaponComponent->empty_sound = empty_sound;
+        weaponComponent->MuzzleOffset = MuzzleOffset;
+        weaponComponent->attackSpeed = attackSpeed;
+        weaponComponent->current_ammo = current_ammo;
+        weaponComponent->max_ammo = max_ammo;
+        weaponComponent->reload_sound = reload_sound;
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("weaponComponent is nullptr!"));
+    }
 }
 
 // Called every frame
 void AWeapon::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
-
+	
 }
 
+	

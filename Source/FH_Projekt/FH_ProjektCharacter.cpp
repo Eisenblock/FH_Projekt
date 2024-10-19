@@ -36,9 +36,7 @@ AFH_ProjektCharacter::AFH_ProjektCharacter()
 	Mesh1P->CastShadow = false;
 	//Mesh1P->SetRelativeRotation(FRotator(0.9f, -19.19f, 5.2f));
 	Mesh1P->SetRelativeLocation(FVector(-30.f, 0.f, -150.f));
-	ammo = 80;
-	life = 100;
-	clipsize = 2;
+
 }
 
 void AFH_ProjektCharacter::BeginPlay()
@@ -53,7 +51,10 @@ void AFH_ProjektCharacter::BeginPlay()
 void AFH_ProjektCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {	
 
-	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &AFH_ProjektCharacter::Attack);
+
+	//PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &AFH_ProjektCharacter::Attack);
+	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &AFH_ProjektCharacter::StartAttack);
+	PlayerInputComponent->BindAction("Attack", IE_Released, this, &AFH_ProjektCharacter::StopAttack);
 
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &AFH_ProjektCharacter::Reload);
 
@@ -78,8 +79,10 @@ void AFH_ProjektCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 }
 
 
+
 void AFH_ProjektCharacter::Attack()
 {
+	
 	UAnimInstance* AnimInstance = GetMesh1P()->GetAnimInstance();
 
 	// Überprüfen, ob der AnimInstance existiert
@@ -90,11 +93,14 @@ void AFH_ProjektCharacter::Attack()
 	}
 
 	// Überprüfen, ob die Animationsmontage zugewiesen ist
-	if (shoot_anim && clipsize != 0)
+	if (shoot_anim && CurrentWeaponComponent->current_ammo != 0 )
 	{
 		AnimInstance->Montage_Play(shoot_anim, 1.0f);
+		FName MuzzleSocketName = TEXT("shotLoc");
+		
+		//FVector MuzzleLocation = GetMesh1PGetSocketLocation(MuzzleSocketName);
 		CurrentWeaponComponent->Fire(this);
-		clipsize -= 1;
+		
 	}
 	else
 	{
@@ -113,14 +119,39 @@ void AFH_ProjektCharacter::Attack()
 	}*/
 }
 
+void AFH_ProjektCharacter::StartAttack()
+{
+	if (!bIsAttacking)
+	{
+		bIsAttacking = true; // Setze den Angriffsstatus
+		Attack(); // Führe sofort den ersten Angriff aus
+
+		// Starte den Timer, der alle 0.1 Sekunden die Attack-Funktion aufruft
+		GetWorld()->GetTimerManager().SetTimer(AttackTimerHandle, this, &AFH_ProjektCharacter::Attack, CurrentWeaponComponent->attackSpeed, true);
+	}
+
+}
+
+void AFH_ProjektCharacter::StopAttack()
+{
+	bIsAttacking = false; // Setze den Angriffsstatus zurück
+    GetWorld()->GetTimerManager().ClearTimer(AttackTimerHandle);
+}
+
 void AFH_ProjektCharacter::Reload()
 {
 	UAnimInstance* animInstance = GetMesh1P()->GetAnimInstance();
 	if (animInstance != nullptr )
 	{
 		animInstance->Montage_Play(reload_anim, 1.0f);
-		clipsize = 2;
+		CurrentWeaponComponent->GetAmmo_R();
 	}
+}
+
+void AFH_ProjektCharacter::GetDmg(float dmg)
+{
+	life -= dmg;
+	UE_LOG(LogTemp, Warning, TEXT("Life after damage: %f"), life);
 }
 
 UTP_WeaponComponent* AFH_ProjektCharacter::EquipWeapon()

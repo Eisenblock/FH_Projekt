@@ -25,9 +25,16 @@ public:
 
 	void GetDmgEnemy(float dmg);
 	void EnemyDead();
+	void Attack();
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
 	float life = 100;
 
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
+	UAnimMontage* attack_anim;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
+	USkeletalMeshComponent* Mesh1P;
 };

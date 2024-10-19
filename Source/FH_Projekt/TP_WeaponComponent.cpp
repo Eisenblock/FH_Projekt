@@ -13,6 +13,7 @@
 #include "Animation/AnimInstance.h"
 #include "Engine/LocalPlayer.h"
 #include "Enemy.h"
+#include "Weapon.h"
 #include "Engine/World.h"
 
 // Sets default values for this component's properties
@@ -20,6 +21,7 @@ UTP_WeaponComponent::UTP_WeaponComponent()
 {
 	// Default offset from the character location for projectiles to spawn
 	MuzzleOffset = FVector(100.0f, 0.0f, 10.0f);
+	clipsize = current_ammo;
 }
 
 
@@ -30,18 +32,25 @@ void UTP_WeaponComponent::Fire(AFH_ProjektCharacter* TargetCharacter)
 	if (World != nullptr && Character != nullptr)
 	{
 		// Hole das Skeletal Mesh des Charakters oder der Waffe (je nachdem, wo der Socket ist)
-		USkeletalMeshComponent* MeshComp = Character->GetMesh(); // Oder verwende das Waffenskeletalmesh, wenn die Waffe ein separates Mesh hat
-		if (MeshComp != nullptr)
+		USkeletalMeshComponent* MeshComp = Character->GetMesh1P(); // Oder verwende das Waffenskeletalmesh, wenn die Waffe ein separates Mesh hat
+		if (MeshComp != nullptr && current_ammo != 0)
 		{
 			// Definiere den Namen des Sockets (z. B. "Muzzle" für die Waffe)
-			FName MuzzleSocketName = TEXT("shotLoc");
+			FName MuzzleSocketName = TEXT("shotLoc_w");
 			APlayerController* PlayerController = Cast<APlayerController>(Character->GetController());
-			const FRotator SpawnRotation = PlayerController->PlayerCameraManager->GetCameraRotation();
+			// Hole die Kamerarotation
+			FRotator CameraRotation = PlayerController->PlayerCameraManager->GetCameraRotation();
+
+			// Reduziere den Pitch (Y-Achse), um die Rotation nach unten zu verschieben
+			float PitchOffset = -5.0f; // Negative Werte neigen nach unten, positive nach oben
+			FRotator AdjustedRotation = CameraRotation;
+			AdjustedRotation.Pitch += PitchOffset;
+			const FRotator SpawnRotation = AdjustedRotation;
 
 			// Hole die Position und Rotation des Sockets
 			FVector MuzzleLocation = MeshComp->GetSocketLocation(MuzzleSocketName);
 			FRotator MuzzleRotation = MeshComp->GetSocketRotation(MuzzleSocketName);
-
+			
 			// Optional: Ignoriere den eigenen Actor beim Trace, um keine Kollision mit sich selbst zu verursachen
 			FCollisionQueryParams queryParams;
 			queryParams.AddIgnoredActor(Character);
@@ -51,6 +60,7 @@ void UTP_WeaponComponent::Fire(AFH_ProjektCharacter* TargetCharacter)
 			FVector TraceEnd = MuzzleLocation + (SpawnRotation.Vector() * 3000); // 3000 Einheiten nach vorne
 
 			bool bHit = World->LineTraceSingleByChannel(onHit, MuzzleLocation, TraceEnd, ECollisionChannel::ECC_Pawn, queryParams);
+			lostAmmo();
 
 			// Debug Line zeichnen, um den Trace zu visualisieren
 			DrawDebugLine(World, MuzzleLocation, TraceEnd, FColor::Red, false, 5.f, 0, 5.f);
@@ -93,8 +103,22 @@ void UTP_WeaponComponent::Fire(AFH_ProjektCharacter* TargetCharacter)
 			UGameplayStatics::PlaySoundAtLocation(this, fire_sound, Character->GetActorLocation());
 		}
 
+		if (empty_sound != nullptr && current_ammo == 0) 
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, empty_sound, Character->GetActorLocation());
+		}
+
 		// Hier könntest du auch noch Animationen für den Schuss hinzufügen, falls erforderlich
 	}
+}
+void UTP_WeaponComponent::lostAmmo()
+{
+	current_ammo -= 1;
+}
+void UTP_WeaponComponent::GetAmmo_R()
+{
+	UGameplayStatics::PlaySoundAtLocation(this, reload_sound, Character->GetActorLocation());
+	current_ammo = clipsize;
 }
 bool UTP_WeaponComponent::AttachWeapon(AFH_ProjektCharacter* TargetCharacter)
 {

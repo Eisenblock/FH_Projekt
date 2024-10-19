@@ -59,16 +59,22 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
 	TSubclassOf<class AActor> p_weapon;
 
-	//Player Stats
-	float clipsize = 2;
-	float ammo = 80;
-	float life = 100;
+	//Weapon Stats
+	FTimerHandle AttackTimerHandle;
+	bool bIsAttacking = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GamePlay")
+	float life;
 
 	
 	UTP_WeaponComponent* CurrentWeaponComponent;
 
+	
 	void Attack();
+	void StartAttack();
+	void StopAttack();
 	void Reload();
+	void GetDmg(float dmg);
 	UTP_WeaponComponent* EquipWeapon();
 
 protected:
