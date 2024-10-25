@@ -11,6 +11,7 @@
 #include "InputActionValue.h"
 #include "Engine/LocalPlayer.h"
 #include "TP_WeaponComponent.h"
+#include "Blueprint/UserWidget.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -44,6 +45,14 @@ void AFH_ProjektCharacter::BeginPlay()
 	// Call the base class  
 	Super::BeginPlay();
 	CurrentWeaponComponent = EquipWeapon();
+
+	if (m_cPlayerHUD != nullptr)
+	{
+		//add the HUd to the viewport
+		UUserWidget* HUD = CreateWidget<UUserWidget>(Cast<APlayerController>(GetController()), m_cPlayerHUD);
+		HUD->AddToViewport(9999);
+
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////// Input

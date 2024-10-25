@@ -36,16 +36,16 @@ void UTP_WeaponComponent::Fire(AFH_ProjektCharacter* TargetCharacter)
 		if (MeshComp != nullptr && current_ammo != 0)
 		{
 			// Definiere den Namen des Sockets (z. B. "Muzzle" für die Waffe)
-			FName MuzzleSocketName = TEXT("shotLoc_w");
+			FName MuzzleSocketName = TEXT("shotLoc");
 			APlayerController* PlayerController = Cast<APlayerController>(Character->GetController());
 			// Hole die Kamerarotation
 			FRotator CameraRotation = PlayerController->PlayerCameraManager->GetCameraRotation();
 
 			// Reduziere den Pitch (Y-Achse), um die Rotation nach unten zu verschieben
-			float PitchOffset = -5.0f; // Negative Werte neigen nach unten, positive nach oben
+			/*float PitchOffset = -5.0f; // Negative Werte neigen nach unten, positive nach oben
 			FRotator AdjustedRotation = CameraRotation;
 			AdjustedRotation.Pitch += PitchOffset;
-			const FRotator SpawnRotation = AdjustedRotation;
+			const FRotator SpawnRotation = AdjustedRotation;*/
 
 			// Hole die Position und Rotation des Sockets
 			FVector MuzzleLocation = MeshComp->GetSocketLocation(MuzzleSocketName);
@@ -57,7 +57,7 @@ void UTP_WeaponComponent::Fire(AFH_ProjektCharacter* TargetCharacter)
 
 			// Führe den Line Trace vom Muzzle-Socket durch
 			FHitResult onHit;
-			FVector TraceEnd = MuzzleLocation + (SpawnRotation.Vector() * 3000); // 3000 Einheiten nach vorne
+			FVector TraceEnd = MuzzleLocation + (CameraRotation.Vector() * 3000); // 3000 Einheiten nach vorne
 
 			bool bHit = World->LineTraceSingleByChannel(onHit, MuzzleLocation, TraceEnd, ECollisionChannel::ECC_Pawn, queryParams);
 			lostAmmo();

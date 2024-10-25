@@ -59,6 +59,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
 	TSubclassOf<class AActor> p_weapon;
 
+	//reference to HUD
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class UUserWidget> m_cPlayerHUD;
+
 	//Weapon Stats
 	FTimerHandle AttackTimerHandle;
 	bool bIsAttacking = false;
