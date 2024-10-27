@@ -44,8 +44,15 @@ void AFH_ProjektCharacter::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
-	CurrentWeaponComponent = EquipWeapon();
+	current_weapon = s_weapon;
+	m_WeaponComponent = EquipWeapon(p_weapon, FName("weaponsocket_1"));
+	s_WeaponComponent = EquipWeapon(s_weapon,FName("weaponsocket"));
+	
 
+	m_weaponsA->SetActorHiddenInGame(true);
+
+	
+	
 	if (m_cPlayerHUD != nullptr)
 	{
 		//add the HUd to the viewport
@@ -66,7 +73,7 @@ void AFH_ProjektCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	PlayerInputComponent->BindAction("Attack", IE_Released, this, &AFH_ProjektCharacter::StopAttack);
 
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &AFH_ProjektCharacter::Reload);
-
+	PlayerInputComponent->BindAction("ChangeWeapon", IE_Pressed, this, &AFH_ProjektCharacter::ChangeWeapon);
 	
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
@@ -163,7 +170,7 @@ void AFH_ProjektCharacter::GetDmg(float dmg)
 	UE_LOG(LogTemp, Warning, TEXT("Life after damage: %f"), life);
 }
 
-UTP_WeaponComponent* AFH_ProjektCharacter::EquipWeapon()
+UTP_WeaponComponent* AFH_ProjektCharacter::EquipWeapon(TSubclassOf<class AActor> weapon,FName socketname)
 {
 	// Hole den PlayerController und überprüfe, ob er gültig ist
 	APlayerController* pControll = Cast<APlayerController>(GetController());
@@ -175,25 +182,28 @@ UTP_WeaponComponent* AFH_ProjektCharacter::EquipWeapon()
 
 	// Hole die Kamerarotation und Position des Charakters
 	const FRotator pRota = pControll->PlayerCameraManager->GetCameraRotation();
-	const FVector pLoc = GetMesh1P()->GetSocketLocation(FName("weaponsocket"));  // Verwende GetActorLocation(), nicht GetOwner()
+	const FVector pLoc = GetMesh1P()->GetSocketLocation(FName(socketname));  // Verwende GetActorLocation(), nicht GetOwner()
 
 	// Spawnparameter
 	FActorSpawnParameters pSpawnParam;
 	pSpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	// Spawne die Waffe (p_weapon muss korrekt als TSubclassOf<AActor> deklariert sein)
-	AActor* pWeapon = GetWorld()->SpawnActor<AActor>(p_weapon, pLoc, pRota, pSpawnParam);
-	if (!pWeapon)
+	UTP_WeaponComponent* pWeeapon;
+	if (weapon == s_weapon)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Failed to spawn weapon"));
-		return nullptr;
+		s_weaponsA = GetWorld()->SpawnActor<AActor>(weapon, pLoc, pRota, pSpawnParam);
+		pWeeapon = s_weaponsA->FindComponentByClass<UTP_WeaponComponent>();
+	}
+	else
+	{
+		m_weaponsA = GetWorld()->SpawnActor<AActor>(weapon, pLoc, pRota, pSpawnParam);
+		pWeeapon = m_weaponsA->FindComponentByClass<UTP_WeaponComponent>();
 	}
 
-	// Hole die Waffenkomponente und hänge die Waffe an den Charakter an
-	UTP_WeaponComponent* pWeeapon = pWeapon->FindComponentByClass<UTP_WeaponComponent>();
 	if (pWeeapon)
 	{
-		pWeeapon->AttachWeapon(this);  // Hier wird die Waffe an den Charakter angehängt
+		pWeeapon->AttachWeapon(this,socketname);  // Hier wird die Waffe an den Charakter angehängt
 		CurrentWeaponComponent = pWeeapon; // Speichere die Waffenkomponente in der Charakterklasse
 	}
 	else
@@ -203,6 +213,24 @@ UTP_WeaponComponent* AFH_ProjektCharacter::EquipWeapon()
 	}
 
 	return pWeeapon;  // Rückgabe der Waffenkomponente
+}
+
+void AFH_ProjektCharacter::ChangeWeapon()
+{
+	if (current_weapon == s_weapon)
+	{
+		s_weaponsA->SetActorHiddenInGame(true);
+		m_weaponsA->SetActorHiddenInGame(false);
+		current_weapon = p_weapon;
+		CurrentWeaponComponent = m_WeaponComponent;
+	}
+	else
+	{
+		m_weaponsA->SetActorHiddenInGame(true);
+		s_weaponsA->SetActorHiddenInGame(false);
+		current_weapon = s_weapon;
+		CurrentWeaponComponent = s_WeaponComponent;
+	}
 }
 
 void AFH_ProjektCharacter::Move(const FInputActionValue& Value)

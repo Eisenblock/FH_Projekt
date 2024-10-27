@@ -49,7 +49,7 @@ public:
 
 	UTP_WeaponComponent();
 
-	bool AttachWeapon(AFH_ProjektCharacter* TargetCharacter);
+	bool AttachWeapon(AFH_ProjektCharacter* TargetCharacter,FName socket);
 	void Fire(AFH_ProjektCharacter* TargetCharacter);
 	void lostAmmo();
 	void GetAmmo_R();

@@ -120,19 +120,19 @@ void UTP_WeaponComponent::GetAmmo_R()
 	UGameplayStatics::PlaySoundAtLocation(this, reload_sound, Character->GetActorLocation());
 	current_ammo = clipsize;
 }
-bool UTP_WeaponComponent::AttachWeapon(AFH_ProjektCharacter* TargetCharacter)
+bool UTP_WeaponComponent::AttachWeapon(AFH_ProjektCharacter* TargetCharacter,FName socket)
 {
 	Character = TargetCharacter;
 
 	// Check that the character is valid, and has no weapon component yet
-	if (Character == nullptr || Character->GetInstanceComponents().FindItemByClass<UTP_WeaponComponent>())
+	if (Character == nullptr )
 	{
 		return false;
 	}
 
 	// Attach the weapon to the First Person Character
 	FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, true);
-	AttachToComponent(Character->GetMesh1P(), AttachmentRules, FName(TEXT("weaponsocket")));
+	AttachToComponent(Character->GetMesh1P(), AttachmentRules, FName(socket));
 
 	// add the weapon as an instance component to the character
 	Character->AddInstanceComponent(this);

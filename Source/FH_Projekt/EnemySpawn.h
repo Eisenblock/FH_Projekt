@@ -23,14 +23,36 @@ protected:
 	virtual void BeginPlay() override;
 
 	// Timer-Handle für wiederholtes Spawnen
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
 	FTimerHandle SpawnTimerHandle;
+
+	FTimerHandle UpdateIndexTimerHandle;
+
+	// Timer-Handle für wiederholtes Spawnen
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
+	FTimerHandle GetLifeTime_Enemy;
+
+	int32 a = 0;
 
 	// Intervall für das Spawnen von Gegnern (in Sekunden)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
 	float SpawnInterval;
 
 	// Funktion, die den Gegner spawnt
-	void SpawnEnemy();
+	void SpawnEnemy(AActor* posSpawn);
+	void ColletcWayPoints();
+	void StartCountWaypoint();
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Waypoints")
+	TArray<AActor*> WaypointsArray;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
+	AEnemy* Enemy_FastAF;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
+	AEnemy* Enemy_SlowAF;
 
 	// Anzahl der maximal zu spawnenden Gegner
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
@@ -49,6 +71,8 @@ public:
 
 	// Funktion zum Starten des Spawnens
 	UFUNCTION(BlueprintCallable, Category = "Spawning")
-	void StartSpawning();
+	void StartSpawning(AEnemy* enemy);
+
+	void EnemyGetLife(AEnemy* enemy);
 };
 

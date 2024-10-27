@@ -5,6 +5,7 @@
 #include "Engine/World.h"
 #include "Enemy.h"
 #include "Enemy_Controller.h"
+#include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
 
 // Konstruktor: Standardwerte setzen
@@ -13,7 +14,7 @@ AEnemySpawn::AEnemySpawn()
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Standardwerte initialisieren
-	SpawnInterval = 5.0f; // Gegner spawnt alle 5 Sekunden
+	SpawnInterval = 2.0f; // Gegner spawnt alle 5 Sekunden
 	MaxEnemies = 10; // Maximal 10 Gegner
 	CurrentEnemies = 0; // Start mit 0 Gegnern
 }
@@ -23,31 +24,65 @@ void AEnemySpawn::BeginPlay()
 {
 	Super::BeginPlay();
 
+    ColletcWayPoints();
 	// Spawning wird bei Spielstart gestartet
-	StartSpawning();
+	StartSpawning(Enemy_SlowAF);
+    EnemyGetLife(Enemy_SlowAF);
+   // GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &AEnemySpawn::StartCountWaypoint, 4.0f, true);
 }
 
+
+
 // Spawning-Logik
-void AEnemySpawn::StartSpawning()
+void AEnemySpawn::StartSpawning(AEnemy* EnemyInstance)
 {
+   
 	// Timer, der die SpawnEnemy-Funktion regelmäßig aufruft
-	GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &AEnemySpawn::SpawnEnemy, SpawnInterval, true);
+    GetWorldTimerManager().SetTimer(SpawnTimerHandle, [this]()
+        {  
+            
+            if (WaypointsArray.Num() > 0) // Sicherstellen, dass das Array Elemente enthält
+            {
+                //int32 a = FMath::RandRange(0, WaypointsArray.Num() - 1);
+                AActor* SpawnLocation = WaypointsArray[0];
+                SpawnEnemy(SpawnLocation); // Rufe die SpawnEnemy-Funktion mit dem Standort auf
+            }
+        }, SpawnInterval, true);          
+    
+}
+
+void AEnemySpawn::EnemyGetLife(AEnemy* EnemyInstance)
+{
+    if (EnemyInstance)
+    {
+        float LifeValue = 100.0f; // Beispielwert, den du übergeben möchtest
+
+        // Setze den Timer, der alle 20 Sekunden EnemyGetLife aufruft
+        GetWorldTimerManager().SetTimer(GetLifeTime_Enemy, [EnemyInstance, LifeValue]()
+            {
+                EnemyInstance->EnemyGetLife(LifeValue);
+            }, 5.0f, true);
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("EnemyInstance ist null."));
+    }
 }
 
 // SpawnEnemy: Spawnt einen Gegner an der Position des Spawners
-void AEnemySpawn::SpawnEnemy()
+void AEnemySpawn::SpawnEnemy(AActor* posSpawn)
 {
     if (EnemyClass) // Stelle sicher, dass die Klasse gesetzt ist
     {
-        FVector SpawnLocation = GetActorLocation();
-        FRotator SpawnRotation = GetActorRotation();
+        FVector SpawnLocation = posSpawn->GetActorLocation();
+        FRotator SpawnRotation = posSpawn->GetActorRotation();
 
         // Spawne den Gegner
-        AEnemy* SpawnedEnemy = GetWorld()->SpawnActor<AEnemy>(EnemyClass, SpawnLocation, SpawnRotation);
-        if (SpawnedEnemy)
+        Enemy_SlowAF = GetWorld()->SpawnActor<AEnemy>(EnemyClass, SpawnLocation, SpawnRotation);
+        if (Enemy_SlowAF)
         {
             // Setze den AIController für den Gegner (wird oft automatisch gemacht, aber sicherheitshalber)
-            AEnemy_Controller* AIController = Cast<AEnemy_Controller>(SpawnedEnemy->GetController());
+            AEnemy_Controller* AIController = Cast<AEnemy_Controller>(Enemy_SlowAF->GetController());
 
             if (!AIController)
             {
@@ -55,7 +90,7 @@ void AEnemySpawn::SpawnEnemy()
                 AIController = GetWorld()->SpawnActor<AEnemy_Controller>(AEnemy_Controller::StaticClass(), SpawnLocation, SpawnRotation);
                 if (AIController)
                 {
-                    AIController->Possess(SpawnedEnemy); // AIController übernimmt den Gegner
+                    AIController->Possess(Enemy_SlowAF); // AIController übernimmt den Gegner
                 }
             }
         }
@@ -70,9 +105,38 @@ void AEnemySpawn::SpawnEnemy()
     }
 }
 
+void AEnemySpawn::ColletcWayPoints()
+{
+    TArray<AActor*> WaypointActors;
+
+    // Suche alle Actor-Instanzen mit dem Tag "waypoint"
+    UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("WayPoint"), WaypointActors);
+
+    // Überprüfe, ob Wegpunkte gefunden wurden
+    if (WaypointActors.Num() == 0)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Keine Wegpunkte mit dem Tag 'waypoint' gefunden."));
+        return;
+    }
+
+    // Debug-Ausgabe: Anzahl der gefundenen Wegpunkte
+    UE_LOG(LogTemp, Log, TEXT("Anzahl gefundener Wegpunkte: %d"), WaypointActors.Num());
+
+    // Speichere die Wegpunkte im Character-Array, wenn du ein Array für sie hast
+    this->WaypointsArray = WaypointActors;
+}
+
+void AEnemySpawn::StartCountWaypoint()
+{
+           int32 x = FMath::RandRange(0, 1);
+            a = x;
+            UE_LOG(LogTemp, Log, TEXT("Neuer Wert für a: %d"), a)   
+}
+
 // Tick: Wird jede Frame aufgerufen
 void AEnemySpawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
 }
 

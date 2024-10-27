@@ -4,16 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "Enemy.generated.h"
+#include "SpawnSystem.generated.h"
 
 UCLASS()
-class FH_PROJEKT_API AEnemy : public ACharacter
+class FH_PROJEKT_API ASpawnSystem : public ACharacter
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this character's properties
-	AEnemy();
+	ASpawnSystem();
 
 protected:
 	// Called when the game starts or when spawned
@@ -23,19 +23,20 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void GetDmgEnemy(float dmg);
-	void EnemyDead();
-	void Attack();
-	void EnemyGetLife(float life_);
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
-	float life = 100;
 
+	void ColletcWayPoints();
+	void SpawnEnemyAtRandomWaypoint(TSubclassOf<AActor> EnemyClass);
+	void  StartSpawning();
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
-	UAnimMontage* attack_anim;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Waypoints")
+	TArray<AActor*> WaypointsArray;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
-	USkeletalMeshComponent* Mesh1P;
+	AEnemy* Enemy_FastAF;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
+	AEnemy* Enemy_SlowAF;
 };

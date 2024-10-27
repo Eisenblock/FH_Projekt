@@ -57,7 +57,16 @@ public:
 	UAnimMontage* shoot_anim;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
+	TSubclassOf<class AActor> current_weapon;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
 	TSubclassOf<class AActor> p_weapon;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
+	TSubclassOf<class AActor> s_weapon;
+
+	AActor* s_weaponsA;
+	AActor* m_weaponsA;
 
 	//reference to HUD
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
@@ -72,6 +81,9 @@ public:
 
 	
 	UTP_WeaponComponent* CurrentWeaponComponent;
+	UTP_WeaponComponent* m_WeaponComponent;
+	UTP_WeaponComponent* s_WeaponComponent;
+	
 
 	
 	void Attack();
@@ -79,7 +91,8 @@ public:
 	void StopAttack();
 	void Reload();
 	void GetDmg(float dmg);
-	UTP_WeaponComponent* EquipWeapon();
+	UTP_WeaponComponent* EquipWeapon(TSubclassOf<class AActor> weapon,FName socketname);
+	void ChangeWeapon();
 
 protected:
 	/** Called for movement input */

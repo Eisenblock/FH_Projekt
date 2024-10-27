@@ -16,7 +16,7 @@ AEnemy::AEnemy()
 	PrimaryActorTick.bCanEverTick = true;
     Mesh1P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh1P"));
 	Tags.Add(FName("Enemy"));
-	
+    life = 100.0f;
 	
 }
 
@@ -72,6 +72,12 @@ void AEnemy::Attack()
     {
         UE_LOG(LogTemp, Warning, TEXT("shoot_anim ist nullptr!"));
     }
+}
+
+void AEnemy::EnemyGetLife(float life_)
+{
+    life += life_;
+    UE_LOG(LogTemp, Log, TEXT("Aktueller Lebenswert: %f"), life);
 }
 
 // Called to bind functionality to input
