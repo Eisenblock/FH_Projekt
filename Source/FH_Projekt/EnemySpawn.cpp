@@ -27,8 +27,8 @@ void AEnemySpawn::BeginPlay()
     ColletcWayPoints();
 	// Spawning wird bei Spielstart gestartet
 	StartSpawning(Enemy_SlowAF);
-    EnemyGetLife(Enemy_SlowAF);
-   // GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &AEnemySpawn::StartCountWaypoint, 4.0f, true);
+    //EnemyGetLife(EnemyClass);
+    //GetWorldTimerManager().SetTimer(UpdateIndexTimerHandle, this, &AEnemySpawn::StartCountWaypoint, 2.0f, true);
 }
 
 
@@ -43,24 +43,24 @@ void AEnemySpawn::StartSpawning(AEnemy* EnemyInstance)
             
             if (WaypointsArray.Num() > 0) // Sicherstellen, dass das Array Elemente enthält
             {
-                //int32 a = FMath::RandRange(0, WaypointsArray.Num() - 1);
-                AActor* SpawnLocation = WaypointsArray[0];
+                int32 a = FMath::RandRange(0, WaypointsArray.Num() - 1);
+                AActor* SpawnLocation = WaypointsArray[a];
                 SpawnEnemy(SpawnLocation); // Rufe die SpawnEnemy-Funktion mit dem Standort auf
             }
         }, SpawnInterval, true);          
     
 }
 
-void AEnemySpawn::EnemyGetLife(AEnemy* EnemyInstance)
+void AEnemySpawn::EnemyGetLife(AEnemy* Enemy)
 {
-    if (EnemyInstance)
+    if (Enemy)
     {
         float LifeValue = 100.0f; // Beispielwert, den du übergeben möchtest
 
         // Setze den Timer, der alle 20 Sekunden EnemyGetLife aufruft
-        GetWorldTimerManager().SetTimer(GetLifeTime_Enemy, [EnemyInstance, LifeValue]()
+        GetWorldTimerManager().SetTimer(GetLifeTime_Enemy, [Enemy, LifeValue]()
             {
-                EnemyInstance->EnemyGetLife(LifeValue);
+          
             }, 5.0f, true);
     }
     else
@@ -130,7 +130,7 @@ void AEnemySpawn::StartCountWaypoint()
 {
            int32 x = FMath::RandRange(0, 1);
             a = x;
-            UE_LOG(LogTemp, Log, TEXT("Neuer Wert für a: %d"), a)   
+            UE_LOG(LogTemp, Log, TEXT("Neuer Wert für a: %d"), x)   
 }
 
 // Tick: Wird jede Frame aufgerufen

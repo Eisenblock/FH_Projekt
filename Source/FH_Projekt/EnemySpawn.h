@@ -73,6 +73,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Spawning")
 	void StartSpawning(AEnemy* enemy);
 
-	void EnemyGetLife(AEnemy* enemy);
+	void EnemyGetLife(AEnemy* EnemyClass);
 };
 
