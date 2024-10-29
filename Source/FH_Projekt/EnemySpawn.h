@@ -47,6 +47,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Waypoints")
 	TArray<AActor*> WaypointsArray;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Waypoints")
+	TArray<AActor*> WaypointsArray_North;
+
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
 	AEnemy* Enemy_FastAF;
 

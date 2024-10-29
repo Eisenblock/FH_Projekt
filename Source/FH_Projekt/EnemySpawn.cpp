@@ -108,9 +108,13 @@ void AEnemySpawn::SpawnEnemy(AActor* posSpawn)
 void AEnemySpawn::ColletcWayPoints()
 {
     TArray<AActor*> WaypointActors;
+    TArray<AActor*> WaypointActors_North;
 
     // Suche alle Actor-Instanzen mit dem Tag "waypoint"
     UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("WayPoint"), WaypointActors);
+    UE_LOG(LogTemp, Log, TEXT("Anzahl der WayPoint-Akteure gefunden: %d"), WaypointActors.Num());
+    UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("WayPoint_North"), WaypointActors_North);
+    UE_LOG(LogTemp, Log, TEXT("Anzahl der WayPoint-Akteure gefunden north: %d"), WaypointActors_North.Num());
 
     // Überprüfe, ob Wegpunkte gefunden wurden
     if (WaypointActors.Num() == 0)
@@ -124,6 +128,7 @@ void AEnemySpawn::ColletcWayPoints()
 
     // Speichere die Wegpunkte im Character-Array, wenn du ein Array für sie hast
     this->WaypointsArray = WaypointActors;
+    this->WaypointsArray_North = WaypointActors_North;
 }
 
 void AEnemySpawn::StartCountWaypoint()
