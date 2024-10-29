@@ -75,6 +75,11 @@ public:
 	//Weapon Stats
 	FTimerHandle AttackTimerHandle;
 	bool bIsAttacking = false;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GamePlay")
+	int32 current_ammo;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GamePlay")
+	int32 max_ammo;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GamePlay")
 	float life;
@@ -109,6 +114,7 @@ protected:
 public:
 	/** Returns Mesh1P subobject **/
 	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
+	virtual void Tick(float DeltaTime) override;
 	/** Returns FirstPersonCameraComponent subobject **/
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
 

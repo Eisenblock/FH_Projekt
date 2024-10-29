@@ -94,6 +94,12 @@ void AFH_ProjektCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	}
 }
 
+void AFH_ProjektCharacter::Tick(float DeltaTime)
+{
+	current_ammo = CurrentWeaponComponent->current_ammo;
+	max_ammo = CurrentWeaponComponent->max_ammo;
+}
+
 
 
 void AFH_ProjektCharacter::Attack()
