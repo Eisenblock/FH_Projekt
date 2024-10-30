@@ -26,9 +26,9 @@ void AEnemySpawn::BeginPlay()
 
     ColletcWayPoints();
 	// Spawning wird bei Spielstart gestartet
-    GetWorldTimerManager().SetTimer(UpdateIndexTimerHandle, this, &AEnemySpawn::StartCountWaypoint, 5.0f, true);
+    GetWorldTimerManager().SetTimer(UpdateIndexTimerHandle, this, &AEnemySpawn::StartCountWaypoint, 15.0f, true);
 	StartSpawning(Enemy_SlowAF);
-    //EnemyGetLife(EnemyClass);
+    StartEnemyGetLife(EnemyClass);
     
 }
 
@@ -56,26 +56,48 @@ void AEnemySpawn::StartSpawning(AEnemy* EnemyInstance)
                 SpawnEnemy(SpawnLocation);
                 UE_LOG(LogTemp, Warning, TEXT("East"));
             }
+            if (WaypointsArray_South.Num() > 0 && b == 2) // Sicherstellen, dass das Array Elemente enthält
+            {
+                int32 a = FMath::RandRange(0, WaypointsArray_South.Num() - 1);
+                AActor* SpawnLocation = WaypointsArray_South[a];
+                SpawnEnemy(SpawnLocation); // Rufe die SpawnEnemy-Funktion mit dem Standort auf
+                UE_LOG(LogTemp, Warning, TEXT("South"));
+            }
+            if (WaypointsArray_West.Num() > 0 && b == 3)
+            {
+                int32 a = FMath::RandRange(0, WaypointsArray_West.Num() - 1);
+                AActor* SpawnLocation = WaypointsArray_West[a];
+                SpawnEnemy(SpawnLocation);
+                UE_LOG(LogTemp, Warning, TEXT("West"));
+            }
         }, SpawnInterval, true);          
     
 }
 
-void AEnemySpawn::EnemyGetLife(AEnemy* Enemy)
+void AEnemySpawn::StartEnemyGetLife(TSubclassOf<AEnemy> Enemy)
 {
-    if (Enemy)
-    {
-        float LifeValue = 100.0f; // Beispielwert, den du übergeben möchtest
+    GetWorldTimerManager().SetTimer(HealthChangeTimer, [this, Enemy]()
+        {
+            EnemyGetLife(EnemyClass);
 
-        // Setze den Timer, der alle 20 Sekunden EnemyGetLife aufruft
-        GetWorldTimerManager().SetTimer(GetLifeTime_Enemy, [Enemy, LifeValue]()
-            {
-          
-            }, 5.0f, true);
-    }
-    else
-    {
-        UE_LOG(LogTemp, Warning, TEXT("EnemyInstance ist null."));
-    }
+        }, 10.0f, true);
+}
+
+void AEnemySpawn::EnemyGetLife(TSubclassOf<AEnemy> Enemy)
+{   
+    UE_LOG(LogTemp, Log, TEXT("Enemy versucht mehr Leben"));
+        
+                if (Enemy)
+                {
+                    // Zugriff auf das Default-Objekt der Klasse AEnemy
+                    AEnemy* DefaultEnemy = Enemy->GetDefaultObject<AEnemy>();
+                    if (DefaultEnemy)
+                    {
+                        // Das Standardleben (z. B. Health) ändern
+                        DefaultEnemy->life += 100.0f;  // Angenommen, Health ist eine öffentliche Variable oder hat eine Setter-Methode
+                        UE_LOG(LogTemp, Log, TEXT("Neues Standardleben für AEnemy-Klasse gesetzt: %f"), DefaultEnemy->life);
+                    }
+                }                 
 }
 
 // SpawnEnemy: Spawnt einen Gegner an der Position des Spawners
@@ -151,7 +173,7 @@ void AEnemySpawn::ColletcWayPoints()
 
 void AEnemySpawn::StartCountWaypoint()
 {
-           int32 x = FMath::RandRange(0, 1);
+           int32 x = FMath::RandRange(0, 3);
             b = x;
             UE_LOG(LogTemp, Log, TEXT("Neuer Wert für a: %d"), x)   
 }

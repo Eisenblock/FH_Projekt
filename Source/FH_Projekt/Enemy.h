@@ -30,7 +30,8 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
-	float life = 100;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
+	float life;
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")

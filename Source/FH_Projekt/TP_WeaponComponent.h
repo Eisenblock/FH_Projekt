@@ -53,6 +53,8 @@ public:
 	void Fire(AFH_ProjektCharacter* TargetCharacter);
 	void lostAmmo();
 	void GetAmmo_R();
+	void ApplyKnockbackAndStun(AEnemy* HitEnemy);
+	
 
 	float attackSpeed;
 	int32 current_ammo = 8;

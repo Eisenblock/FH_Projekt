@@ -15,6 +15,8 @@
 #include "Enemy.h"
 #include "Weapon.h"
 #include "Engine/World.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "TimerManager.h"
 
 // Sets default values for this component's properties
 UTP_WeaponComponent::UTP_WeaponComponent()
@@ -79,6 +81,7 @@ void UTP_WeaponComponent::Fire(AFH_ProjektCharacter* TargetCharacter)
 					{
 						UE_LOG(LogTemp, Log, TEXT("Line Trace hit enemy with tag: %s"), *HitEnemy->GetName());
 						HitEnemy->GetDmgEnemy(100);
+						ApplyKnockbackAndStun(HitEnemy);
 					}
 					else
 					{
@@ -120,6 +123,32 @@ void UTP_WeaponComponent::GetAmmo_R()
 	UGameplayStatics::PlaySoundAtLocation(this, reload_sound, Character->GetActorLocation());
 	current_ammo = max_ammo;
 }
+void UTP_WeaponComponent::ApplyKnockbackAndStun(AEnemy* HitEnemy)
+{
+	UWorld* const World = GetWorld();
+	// 1. Bewegung stoppen
+	UCharacterMovementComponent* MovementComponent = HitEnemy->FindComponentByClass<UCharacterMovementComponent>();
+	if (MovementComponent)
+	{
+		MovementComponent->MaxWalkSpeed = 0;  // Geschwindigkeit auf 0 setzen
+
+		// Timer für 0,2 Sekunden, danach wird die Geschwindigkeit wiederhergestellt
+		FTimerHandle UnusedHandle;
+		World->GetTimerManager().SetTimer(UnusedHandle, [MovementComponent]()
+			{
+				MovementComponent->MaxWalkSpeed = 600;  // Ursprüngliche Geschwindigkeit wiederherstellen (anpassen falls nötig)
+			}, 0.2f, false);
+
+	}
+
+	// 2. Rückstoß anwenden
+	FVector KnockbackDirection = -HitEnemy->GetActorForwardVector();  // Entgegengesetzte Richtung
+	FVector KnockbackForce = KnockbackDirection * 500.0f;  // Passe die Stärke an (500.0f ist Beispielwert)
+	HitEnemy->LaunchCharacter(KnockbackForce, true, true);  // Rückstoß anwenden
+}
+
+
+
 bool UTP_WeaponComponent::AttachWeapon(AFH_ProjektCharacter* TargetCharacter,FName socket)
 {
 	Character = TargetCharacter;

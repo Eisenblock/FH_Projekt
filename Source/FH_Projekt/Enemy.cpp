@@ -16,7 +16,7 @@ AEnemy::AEnemy()
 	PrimaryActorTick.bCanEverTick = true;
     Mesh1P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh1P"));
 	Tags.Add(FName("Enemy"));
-    life = 100.0f;
+    
 	
 }
 

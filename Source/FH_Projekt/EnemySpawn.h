@@ -27,6 +27,7 @@ protected:
 	FTimerHandle SpawnTimerHandle;
 
 	FTimerHandle UpdateIndexTimerHandle;
+	FTimerHandle HealthChangeTimer;
 
 	// Timer-Handle für wiederholtes Spawnen
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
@@ -73,6 +74,8 @@ protected:
 	// Aktuelle Anzahl der gespawnten Gegner
 	int32 CurrentEnemies;
 
+	float LifeValue = 100.0f;
+
 public:
 	// Wird jede Frame aufgerufen
 	virtual void Tick(float DeltaTime) override;
@@ -85,6 +88,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Spawning")
 	void StartSpawning(AEnemy* enemy);
 
-	void EnemyGetLife(AEnemy* EnemyClass);
+	void StartEnemyGetLife(TSubclassOf<AEnemy> Enemy);
+	void EnemyGetLife(TSubclassOf<AEnemy> Enemy);
 };
 
