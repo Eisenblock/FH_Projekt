@@ -33,6 +33,7 @@ protected:
 	FTimerHandle GetLifeTime_Enemy;
 
 	int32 a = 0;
+	int32 b;
 
 	// Intervall für das Spawnen von Gegnern (in Sekunden)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
@@ -45,10 +46,17 @@ protected:
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Waypoints")
-	TArray<AActor*> WaypointsArray;
+	TArray<AActor*> WaypointsArray_North;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Waypoints")
-	TArray<AActor*> WaypointsArray_North;
+	TArray<AActor*> WaypointsArray_East;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Waypoints")
+	TArray<AActor*> WaypointsArray_West;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Waypoints")
+	TArray<AActor*> WaypointsArray_South;
+
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")

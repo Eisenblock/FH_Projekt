@@ -21,7 +21,7 @@ UTP_WeaponComponent::UTP_WeaponComponent()
 {
 	// Default offset from the character location for projectiles to spawn
 	MuzzleOffset = FVector(100.0f, 0.0f, 10.0f);
-	clipsize = current_ammo;
+	
 }
 
 
@@ -118,7 +118,7 @@ void UTP_WeaponComponent::lostAmmo()
 void UTP_WeaponComponent::GetAmmo_R()
 {
 	UGameplayStatics::PlaySoundAtLocation(this, reload_sound, Character->GetActorLocation());
-	current_ammo = clipsize;
+	current_ammo = max_ammo;
 }
 bool UTP_WeaponComponent::AttachWeapon(AFH_ProjektCharacter* TargetCharacter,FName socket)
 {

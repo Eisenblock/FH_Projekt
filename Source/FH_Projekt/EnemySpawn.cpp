@@ -26,9 +26,10 @@ void AEnemySpawn::BeginPlay()
 
     ColletcWayPoints();
 	// Spawning wird bei Spielstart gestartet
+    GetWorldTimerManager().SetTimer(UpdateIndexTimerHandle, this, &AEnemySpawn::StartCountWaypoint, 5.0f, true);
 	StartSpawning(Enemy_SlowAF);
     //EnemyGetLife(EnemyClass);
-    //GetWorldTimerManager().SetTimer(UpdateIndexTimerHandle, this, &AEnemySpawn::StartCountWaypoint, 2.0f, true);
+    
 }
 
 
@@ -41,11 +42,19 @@ void AEnemySpawn::StartSpawning(AEnemy* EnemyInstance)
     GetWorldTimerManager().SetTimer(SpawnTimerHandle, [this]()
         {  
             
-            if (WaypointsArray.Num() > 0) // Sicherstellen, dass das Array Elemente enthält
+            if (WaypointsArray_North.Num() > 0 && b == 0) // Sicherstellen, dass das Array Elemente enthält
             {
-                int32 a = FMath::RandRange(0, WaypointsArray.Num() - 1);
-                AActor* SpawnLocation = WaypointsArray[a];
+                int32 a = FMath::RandRange(0, WaypointsArray_North.Num() - 1);
+                AActor* SpawnLocation = WaypointsArray_North[a];
                 SpawnEnemy(SpawnLocation); // Rufe die SpawnEnemy-Funktion mit dem Standort auf
+                UE_LOG(LogTemp, Warning, TEXT("North"));
+            }
+            if (WaypointsArray_East.Num() > 0 && b == 1) 
+            {
+                int32 a = FMath::RandRange(0, WaypointsArray_East.Num() - 1);
+                AActor* SpawnLocation = WaypointsArray_East[a];
+                SpawnEnemy(SpawnLocation);
+                UE_LOG(LogTemp, Warning, TEXT("East"));
             }
         }, SpawnInterval, true);          
     
@@ -107,34 +116,43 @@ void AEnemySpawn::SpawnEnemy(AActor* posSpawn)
 
 void AEnemySpawn::ColletcWayPoints()
 {
-    TArray<AActor*> WaypointActors;
+    TArray<AActor*> WaypointActors_South;
     TArray<AActor*> WaypointActors_North;
+    TArray<AActor*> WaypointActors_West;
+    TArray<AActor*> WaypointActors_East;
 
     // Suche alle Actor-Instanzen mit dem Tag "waypoint"
-    UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("WayPoint"), WaypointActors);
-    UE_LOG(LogTemp, Log, TEXT("Anzahl der WayPoint-Akteure gefunden: %d"), WaypointActors.Num());
     UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("WayPoint_North"), WaypointActors_North);
-    UE_LOG(LogTemp, Log, TEXT("Anzahl der WayPoint-Akteure gefunden north: %d"), WaypointActors_North.Num());
+    UE_LOG(LogTemp, Log, TEXT("Anzahl der WayPoint-Akteure gefunden North: %d"), WaypointActors_North.Num());
+    UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("WayPoint_East"), WaypointActors_East);
+    UE_LOG(LogTemp, Log, TEXT("Anzahl der WayPoint-Akteure gefunden East: %d"), WaypointActors_East.Num());
+    UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("WayPoint_South"), WaypointActors_South);
+    UE_LOG(LogTemp, Log, TEXT("Anzahl der WayPoint-Akteure gefunden South: %d"), WaypointActors_South.Num());
+    UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("WayPoint_West"), WaypointActors_West);
+    UE_LOG(LogTemp, Log, TEXT("Anzahl der WayPoint-Akteure gefunden West: %d"), WaypointActors_West.Num());
 
-    // Überprüfe, ob Wegpunkte gefunden wurden
+    /*// Überprüfe, ob Wegpunkte gefunden wurden
     if (WaypointActors.Num() == 0)
     {
         UE_LOG(LogTemp, Warning, TEXT("Keine Wegpunkte mit dem Tag 'waypoint' gefunden."));
         return;
-    }
+    }*/
 
     // Debug-Ausgabe: Anzahl der gefundenen Wegpunkte
-    UE_LOG(LogTemp, Log, TEXT("Anzahl gefundener Wegpunkte: %d"), WaypointActors.Num());
+    //UE_LOG(LogTemp, Log, TEXT("Anzahl gefundener Wegpunkte: %d"), WaypointActors.Num());
 
     // Speichere die Wegpunkte im Character-Array, wenn du ein Array für sie hast
-    this->WaypointsArray = WaypointActors;
     this->WaypointsArray_North = WaypointActors_North;
+    this->WaypointsArray_East = WaypointActors_East;
+    this->WaypointsArray_South = WaypointActors_South;
+    this->WaypointsArray_West = WaypointActors_West;
+
 }
 
 void AEnemySpawn::StartCountWaypoint()
 {
            int32 x = FMath::RandRange(0, 1);
-            a = x;
+            b = x;
             UE_LOG(LogTemp, Log, TEXT("Neuer Wert für a: %d"), x)   
 }
 
