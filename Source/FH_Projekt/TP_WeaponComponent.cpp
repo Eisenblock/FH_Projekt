@@ -65,7 +65,7 @@ void UTP_WeaponComponent::Fire(AFH_ProjektCharacter* TargetCharacter)
 			lostAmmo();
 
 			// Debug Line zeichnen, um den Trace zu visualisieren
-			DrawDebugLine(World, MuzzleLocation, TraceEnd, FColor::Red, false, 5.f, 0, 5.f);
+			//DrawDebugLine(World, MuzzleLocation, TraceEnd, FColor::Red, false, 5.f, 0, 5.f);
 
 			if (bHit && onHit.GetActor() != nullptr)
 			{
@@ -128,6 +128,7 @@ void UTP_WeaponComponent::ApplyKnockbackAndStun(AEnemy* HitEnemy)
 	UWorld* const World = GetWorld();
 	// 1. Bewegung stoppen
 	UCharacterMovementComponent* MovementComponent = HitEnemy->FindComponentByClass<UCharacterMovementComponent>();
+	speed_enemy = HitEnemy->speed;
 	if (MovementComponent)
 	{
 		MovementComponent->MaxWalkSpeed = 0;  // Geschwindigkeit auf 0 setzen
@@ -136,7 +137,7 @@ void UTP_WeaponComponent::ApplyKnockbackAndStun(AEnemy* HitEnemy)
 		FTimerHandle UnusedHandle;
 		World->GetTimerManager().SetTimer(UnusedHandle, [MovementComponent]()
 			{
-				MovementComponent->MaxWalkSpeed = 600;  // Ursprüngliche Geschwindigkeit wiederherstellen (anpassen falls nötig)
+				MovementComponent->MaxWalkSpeed = 300.0f;  // Ursprüngliche Geschwindigkeit wiederherstellen (anpassen falls nötig)
 			}, 0.2f, false);
 
 	}

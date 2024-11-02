@@ -6,8 +6,11 @@
 #include "Kismet/GameplayStatics.h"
 #include "FH_ProjektCharacter.h"
 #include "GameFramework/PlayerController.h"
-
-
+#include "GameFramework/Character.h" 
+#include "Components/CapsuleComponent.h"
+#include "Engine/Engine.h"      
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -16,8 +19,10 @@ AEnemy::AEnemy()
 	PrimaryActorTick.bCanEverTick = true;
     Mesh1P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh1P"));
 	Tags.Add(FName("Enemy"));
-    
-	
+    GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::OnOverlapBegin);
+    GetCapsuleComponent()->SetVisibility(true);
+    life = 100;
+
 }
 
 // Called when the game starts or when spawned
@@ -78,6 +83,15 @@ void AEnemy::EnemyGetLife(float life_)
 {
     life += life_;
     UE_LOG(LogTemp, Log, TEXT("Aktueller Lebenswert: %f"), life);
+}
+
+
+void AEnemy::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+    if (OtherActor && OtherActor != this)
+    {
+        UE_LOG(LogTemp, Log, TEXT("Overlap detected with: %s"), *OtherActor->GetName());
+    }
 }
 
 // Called to bind functionality to input

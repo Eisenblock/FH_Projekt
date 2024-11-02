@@ -12,6 +12,7 @@
 #include "Engine/LocalPlayer.h"
 #include "TP_WeaponComponent.h"
 #include "Blueprint/UserWidget.h"
+#include "Kismet/GameplayStatics.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -37,7 +38,7 @@ AFH_ProjektCharacter::AFH_ProjektCharacter()
 	Mesh1P->CastShadow = false;
 	//Mesh1P->SetRelativeRotation(FRotator(0.9f, -19.19f, 5.2f));
 	Mesh1P->SetRelativeLocation(FVector(-30.f, 0.f, -150.f));
-
+	Tags.Add(FName("Player"));
 }
 
 void AFH_ProjektCharacter::BeginPlay()
@@ -174,6 +175,11 @@ void AFH_ProjektCharacter::GetDmg(float dmg)
 {
 	life -= dmg;
 	UE_LOG(LogTemp, Warning, TEXT("Life after damage: %f"), life);
+	if (life <= 0) 
+	{
+		UGameplayStatics::SetGamePaused(GetWorld(), true);
+
+	}
 }
 
 UTP_WeaponComponent* AFH_ProjektCharacter::EquipWeapon(TSubclassOf<class AActor> weapon,FName socketname)
@@ -223,8 +229,10 @@ UTP_WeaponComponent* AFH_ProjektCharacter::EquipWeapon(TSubclassOf<class AActor>
 
 void AFH_ProjektCharacter::ChangeWeapon()
 {
+	UAnimInstance* animInstance = GetMesh1P()->GetAnimInstance();
 	if (current_weapon == s_weapon)
 	{
+		//animInstance->Montage_Play(reload_anim,1.0f);
 		s_weaponsA->SetActorHiddenInGame(true);
 		m_weaponsA->SetActorHiddenInGame(false);
 		current_weapon = p_weapon;
@@ -232,7 +240,8 @@ void AFH_ProjektCharacter::ChangeWeapon()
 	}
 	else
 	{
-		m_weaponsA->SetActorHiddenInGame(true);
+		//animInstance->Montage_Play(reload_anim,1.0f);
+		m_weaponsA->SetActorHiddenInGame(true);		
 		s_weaponsA->SetActorHiddenInGame(false);
 		current_weapon = s_weapon;
 		CurrentWeaponComponent = s_WeaponComponent;

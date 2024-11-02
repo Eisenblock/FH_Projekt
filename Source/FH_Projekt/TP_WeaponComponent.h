@@ -18,7 +18,7 @@ class FH_PROJEKT_API UTP_WeaponComponent : public USkeletalMeshComponent
 
 public:
 	
-
+	float speed_enemy;
 
 	/** Gun muzzle's offset from the characters location */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)

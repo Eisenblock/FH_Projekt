@@ -35,6 +35,7 @@ protected:
 
 	int32 a = 0;
 	int32 b;
+	float extralife;
 
 	// Intervall für das Spawnen von Gegnern (in Sekunden)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")

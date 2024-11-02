@@ -86,8 +86,9 @@ void AEnemySpawn::StartEnemyGetLife(TSubclassOf<AEnemy> Enemy)
 void AEnemySpawn::EnemyGetLife(TSubclassOf<AEnemy> Enemy)
 {   
     UE_LOG(LogTemp, Log, TEXT("Enemy versucht mehr Leben"));
-        
-                if (Enemy)
+    extralife += 100.0f;
+
+                /*if (Enemy)
                 {
                     // Zugriff auf das Default-Objekt der Klasse AEnemy
                     AEnemy* DefaultEnemy = Enemy->GetDefaultObject<AEnemy>();
@@ -97,7 +98,7 @@ void AEnemySpawn::EnemyGetLife(TSubclassOf<AEnemy> Enemy)
                         DefaultEnemy->life += 100.0f;  // Angenommen, Health ist eine öffentliche Variable oder hat eine Setter-Methode
                         UE_LOG(LogTemp, Log, TEXT("Neues Standardleben für AEnemy-Klasse gesetzt: %f"), DefaultEnemy->life);
                     }
-                }                 
+                }*/                 
 }
 
 // SpawnEnemy: Spawnt einen Gegner an der Position des Spawners
@@ -110,6 +111,7 @@ void AEnemySpawn::SpawnEnemy(AActor* posSpawn)
 
         // Spawne den Gegner
         Enemy_SlowAF = GetWorld()->SpawnActor<AEnemy>(EnemyClass, SpawnLocation, SpawnRotation);
+        Enemy_SlowAF->life += extralife;
         if (Enemy_SlowAF)
         {
             // Setze den AIController für den Gegner (wird oft automatisch gemacht, aber sicherheitshalber)
@@ -175,6 +177,11 @@ void AEnemySpawn::StartCountWaypoint()
 {
            int32 x = FMath::RandRange(0, 3);
             b = x;
+            if (SpawnInterval >= 0.1f) 
+            { 
+                SpawnInterval -= 0.1f;
+            }
+           
             UE_LOG(LogTemp, Log, TEXT("Neuer Wert für a: %d"), x)   
 }
 
