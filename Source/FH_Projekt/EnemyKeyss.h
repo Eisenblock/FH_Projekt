@@ -9,4 +9,5 @@ namespace EnemyKeyss
     // Definiere die Zielposition für den Blackboard-Schlüssel
     constexpr const TCHAR* const TargetLocation = TEXT("targetlocation");
     constexpr const TCHAR* const isPlayerInRange = TEXT("isPlayerInRange");
+    constexpr const TCHAR* const DirectionPlayer = TEXT("DirectionPlayer");
 }
