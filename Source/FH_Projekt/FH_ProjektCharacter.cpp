@@ -248,6 +248,15 @@ void AFH_ProjektCharacter::ChangeWeapon()
 	}
 }
 
+void AFH_ProjektCharacter::ApplyImpulse(const FVector& Direction, float ImpulseStrength)
+{
+	if (GetCharacterMovement())
+	{
+		// Anwendung des Impulses in die angegebene Richtung
+		LaunchCharacter(Direction * ImpulseStrength, true, true);  // bool Wert 1: Ignore current velocity, bool Wert 2: Affects gravity
+	}
+}
+
 void AFH_ProjektCharacter::Move(const FInputActionValue& Value)
 {
 	// input is a Vector2D

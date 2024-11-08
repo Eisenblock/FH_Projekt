@@ -99,6 +99,8 @@ public:
 	UTP_WeaponComponent* EquipWeapon(TSubclassOf<class AActor> weapon,FName socketname);
 	void ChangeWeapon();
 
+	void ApplyImpulse(const FVector& Direction, float ImpulseStrength);
+
 protected:
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);

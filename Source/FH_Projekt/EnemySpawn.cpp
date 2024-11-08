@@ -28,7 +28,7 @@ void AEnemySpawn::BeginPlay()
 	// Spawning wird bei Spielstart gestartet
     GetWorldTimerManager().SetTimer(UpdateIndexTimerHandle, this, &AEnemySpawn::StartCountWaypoint, 15.0f, true);
 	StartSpawning(Enemy_SlowAF);
-    StartEnemyGetLife(EnemyClass);
+    //StartEnemyGetLife(EnemyClass);
     
 }
 
@@ -111,7 +111,11 @@ void AEnemySpawn::SpawnEnemy(AActor* posSpawn)
 
         // Spawne den Gegner
         Enemy_SlowAF = GetWorld()->SpawnActor<AEnemy>(EnemyClass, SpawnLocation, SpawnRotation);
-        Enemy_SlowAF->life += extralife;
+       /*int32 RandomNumber = FMath::RandRange(1, 10);
+        if (RandomNumber > 3)
+        {
+            Enemy_SlowAF->speed = 600.0f;
+        }*/ 
         if (Enemy_SlowAF)
         {
             // Setze den AIController für den Gegner (wird oft automatisch gemacht, aber sicherheitshalber)
@@ -179,7 +183,7 @@ void AEnemySpawn::StartCountWaypoint()
             b = x;
             if (SpawnInterval >= 0.1f) 
             { 
-                SpawnInterval -= 0.1f;
+                SpawnInterval -= 0.02f;
             }
            
             UE_LOG(LogTemp, Log, TEXT("Neuer Wert für a: %d"), x)   
