@@ -80,7 +80,7 @@ void UTP_WeaponComponent::Fire(AFH_ProjektCharacter* TargetCharacter)
 					if (HitEnemy->ActorHasTag(FName("Enemy")))  // Überprüfe den Tag
 					{
 						UE_LOG(LogTemp, Log, TEXT("Line Trace hit enemy with tag: %s"), *HitEnemy->GetName());
-						HitEnemy->GetDmgEnemy(100);
+						HitEnemy->GetDmgEnemy(50);
 						ApplyKnockbackAndStun(HitEnemy);
 					}
 					else

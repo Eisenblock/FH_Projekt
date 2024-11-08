@@ -44,6 +44,9 @@ public:
 	int32 current_ammo = 8;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GamePlay")
+	float dmg;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GamePlay")
 	int32 max_ammo = 80;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GamePlay")

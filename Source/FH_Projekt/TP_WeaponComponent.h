@@ -57,6 +57,7 @@ public:
 	
 
 	float attackSpeed;
+	float dmg;
 	int32 current_ammo = 8;
 	int32 max_ammo = 80;
 	int32 clipsize;

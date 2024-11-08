@@ -31,6 +31,7 @@ void AWeapon::BeginPlay()
         weaponComponent->current_ammo = current_ammo;
         weaponComponent->max_ammo = max_ammo;
         weaponComponent->reload_sound = reload_sound;
+        
     }
     else
     {
