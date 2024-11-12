@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "GameFramework/FloatingPawnMovement.h"
 #include "rollinBall.generated.h"
 
 UCLASS()
@@ -36,6 +37,9 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Visual")
     class UStaticMeshComponent* BallMesh;
 
+    UPROPERTY(VisibleAnywhere)
+    UFloatingPawnMovement* FloatingPawnMovement;
+
     // Bewegungsgeschwindigkeit
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
     float Speed;
@@ -43,13 +47,18 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
     float ImpulseStrength;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+    float starttimer;
+
     FVector directionToPlayer;
     FVector start;
+    FTimerHandle TimerHandle;
 
     // Overlap-Event Funktion
     UFUNCTION()
     void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
     FVector GetDirection() const;
+    void FirstDirection();
 
 };

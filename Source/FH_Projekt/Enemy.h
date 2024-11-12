@@ -23,7 +23,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void GetDmgEnemy(float dmg);
+	bool GetDmgEnemy(float dmg);
 	void EnemyDead();
 	void Attack();
 	void EnemyGetLife(float life_);

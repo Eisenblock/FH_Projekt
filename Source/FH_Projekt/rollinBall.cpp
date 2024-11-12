@@ -6,8 +6,12 @@
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Actor.h"
+#include "Ball_AIController.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/FloatingPawnMovement.h"
 #include "FH_ProjektCharacter.h"
+
+
 // Sets default values
 ArollinBall::ArollinBall()
 {
@@ -20,7 +24,7 @@ ArollinBall::ArollinBall()
     CollisionComponent->InitSphereRadius(50.0f); // Radius einstellen
     CollisionComponent->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
     RootComponent = CollisionComponent;
-
+    FloatingPawnMovement = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("FloatingPawnMovement"));
     // Overlap-Event verbinden
     CollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &ArollinBall::OnOverlapBegin);
 
@@ -30,6 +34,8 @@ ArollinBall::ArollinBall()
 
     // Bewegungsgeschwindigkeit initialisieren
     Speed = 500.f;
+
+    AIControllerClass = ABall_AIController::StaticClass();
 }
 
 // Called when the game starts or when spawned
@@ -37,16 +43,31 @@ void ArollinBall::BeginPlay()
 {
 	Super::BeginPlay();
     start = GetActorLocation();
-    directionToPlayer = GetDirection();
+    GetWorldTimerManager().SetTimer(TimerHandle, this, &ArollinBall::FirstDirection, starttimer, false);
+    
+    //directionToPlayer = GetDirection();
 }
 
 // Called every frame
 void ArollinBall::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
-    // Ball bewegen - könnte auch in Richtung eines Ziels oder einer festen Richtung sein
-    FVector NewLocation = GetActorLocation() + (directionToPlayer * Speed * DeltaTime);
-    SetActorLocation(NewLocation);
+    Super::Tick(DeltaTime);
+
+    FVector NewLocation =GetActorLocation() + (directionToPlayer * 5000.0f * DeltaTime);
+
+    // Debug: Aktuelle Position des Balls und Zielposition anzeigen
+    //UE_LOG(LogTemp, Warning, TEXT("Current Position: %s"), *GetActorLocation().ToString());
+    //UE_LOG(LogTemp, Warning, TEXT("New Location (Target Position): %s"), *NewLocation.ToString());
+
+    if (ABall_AIController* AIController = Cast<ABall_AIController>(GetController()))
+    {
+        // Beispielziel in Richtung des Spielers
+        AIController->MoveToTargetLocation(NewLocation);
+
+        // Debug: Zeigt an, dass MoveToLocation aufgerufen wird
+        //UE_LOG(LogTemp, Warning, TEXT("AIController is moving to %s"), *NewLocation.ToString());
+    }
+    //SetActorLocation(NewLocation);
 }
 
 // Called to bind functionality to input
@@ -89,7 +110,7 @@ void ArollinBall::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Ot
         if (OtherActor->ActorHasTag("Wall"))
         {
             directionToPlayer = GetDirection();
-            Speed += 5.0f;
+            
         }
     }
 
@@ -106,6 +127,12 @@ FVector ArollinBall::GetDirection() const
 
     // Richtung berechnen
     FVector Direction = (PlayerCharacter->GetActorLocation() - GetActorLocation()).GetSafeNormal();
+    Direction.IsNormalized();
     return Direction;
+}
+
+void ArollinBall::FirstDirection()
+{
+    directionToPlayer = GetDirection();
 }
 

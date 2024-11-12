@@ -10,6 +10,7 @@
 
 
 class AFH_ProjektCharacter;
+class AEnemy;
 
 UCLASS(Blueprintable, BlueprintType, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class FH_PROJEKT_API UTP_WeaponComponent : public USkeletalMeshComponent
@@ -41,6 +42,8 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sound")
 	UNiagaraSystem* muzzle_flash;
+
+	
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input, meta = (AllowPrivateAccess = "true"))

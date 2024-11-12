@@ -10,6 +10,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "Engine/LocalPlayer.h"
+#include "MyGameInstance.h"
 #include "TP_WeaponComponent.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
@@ -39,6 +40,7 @@ AFH_ProjektCharacter::AFH_ProjektCharacter()
 	//Mesh1P->SetRelativeRotation(FRotator(0.9f, -19.19f, 5.2f));
 	Mesh1P->SetRelativeLocation(FVector(-30.f, 0.f, -150.f));
 	Tags.Add(FName("Player"));
+	
 }
 
 void AFH_ProjektCharacter::BeginPlay()
@@ -60,6 +62,23 @@ void AFH_ProjektCharacter::BeginPlay()
 		UUserWidget* HUD = CreateWidget<UUserWidget>(Cast<APlayerController>(GetController()), m_cPlayerHUD);
 		HUD->AddToViewport(9999);
 
+	}
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		MyGameInstance = Cast<UMyGameInstance>(World->GetGameInstance());
+		if (MyGameInstance)
+		{
+			life = MyGameInstance->PlayerLife;  // Lebenswert wiederherstellen
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("MyGameInstance is not valid!"));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GetWorld() is invalid!"));
 	}
 }
 
@@ -99,6 +118,11 @@ void AFH_ProjektCharacter::Tick(float DeltaTime)
 {
 	current_ammo = CurrentWeaponComponent->current_ammo;
 	max_ammo = CurrentWeaponComponent->max_ammo;
+	float a = 15;
+	if ( a <= killscore) 
+	{
+		MyGameInstance->Changemap();
+	}
 }
 
 
@@ -174,6 +198,7 @@ void AFH_ProjektCharacter::Reload()
 void AFH_ProjektCharacter::GetDmg(float dmg)
 {
 	life -= dmg;
+	MyGameInstance->PlayerLife = life;
 	UE_LOG(LogTemp, Warning, TEXT("Life after damage: %f"), life);
 	if (life <= 0) 
 	{

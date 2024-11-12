@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
+#include "MyGameInstance.h"
 #include "TP_WeaponComponent.h"
 #include "FH_ProjektCharacter.generated.h"
 
@@ -84,10 +85,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GamePlay")
 	float life;
 
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GamePlay")
+	float killscore;
+
 	
 	UTP_WeaponComponent* CurrentWeaponComponent;
 	UTP_WeaponComponent* m_WeaponComponent;
 	UTP_WeaponComponent* s_WeaponComponent;
+	UMyGameInstance* MyGameInstance;
 	
 
 	

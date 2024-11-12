@@ -6,6 +6,8 @@
 #include "Enemy.h"
 #include "Enemy_Controller.h"
 #include "Kismet/GameplayStatics.h"
+#include "FH_ProjektCharacter.h"
+#include "MyGameInstance.h"
 #include "TimerManager.h"
 
 // Konstruktor: Standardwerte setzen
@@ -14,7 +16,7 @@ AEnemySpawn::AEnemySpawn()
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Standardwerte initialisieren
-	SpawnInterval = 2.0f; // Gegner spawnt alle 5 Sekunden
+	//SpawnInterval = 2.0f; // Gegner spawnt alle 5 Sekunden
 	MaxEnemies = 10; // Maximal 10 Gegner
 	CurrentEnemies = 0; // Start mit 0 Gegnern
 }
@@ -23,7 +25,8 @@ AEnemySpawn::AEnemySpawn()
 void AEnemySpawn::BeginPlay()
 {
 	Super::BeginPlay();
-
+    CurrentLevelName = GetWorld()->GetMapName();
+    CurrentLevelName = FPaths::GetBaseFilename(CurrentLevelName);
     ColletcWayPoints();
 	// Spawning wird bei Spielstart gestartet
     GetWorldTimerManager().SetTimer(UpdateIndexTimerHandle, this, &AEnemySpawn::StartCountWaypoint, 15.0f, true);
@@ -104,42 +107,63 @@ void AEnemySpawn::EnemyGetLife(TSubclassOf<AEnemy> Enemy)
 // SpawnEnemy: Spawnt einen Gegner an der Position des Spawners
 void AEnemySpawn::SpawnEnemy(AActor* posSpawn)
 {
-    if (EnemyClass) // Stelle sicher, dass die Klasse gesetzt ist
+    
+
+    
+
+    if (CurrentLevelName != "Testmap" && spawnCount != MaxEnemies)
     {
-        FVector SpawnLocation = posSpawn->GetActorLocation();
-        FRotator SpawnRotation = posSpawn->GetActorRotation();
-
-        // Spawne den Gegner
-        Enemy_SlowAF = GetWorld()->SpawnActor<AEnemy>(EnemyClass, SpawnLocation, SpawnRotation);
-       /*int32 RandomNumber = FMath::RandRange(1, 10);
-        if (RandomNumber > 3)
+        if (EnemyClass) // Stelle sicher, dass die Klasse gesetzt ist
         {
-            Enemy_SlowAF->speed = 600.0f;
-        }*/ 
-        if (Enemy_SlowAF)
-        {
-            // Setze den AIController für den Gegner (wird oft automatisch gemacht, aber sicherheitshalber)
-            AEnemy_Controller* AIController = Cast<AEnemy_Controller>(Enemy_SlowAF->GetController());
+            FVector SpawnLocation = posSpawn->GetActorLocation();
+            FRotator SpawnRotation = posSpawn->GetActorRotation();
 
-            if (!AIController)
+            // Spawne den Gegner
+            Enemy_SlowAF = GetWorld()->SpawnActor<AEnemy>(EnemyClass, SpawnLocation, SpawnRotation);
+            spawnCount += 1;
+            /*int32 RandomNumber = FMath::RandRange(1, 10);
+             if (RandomNumber > 3)
+             {
+                 Enemy_SlowAF->speed = 600.0f;
+             }*/
+            if (Enemy_SlowAF)
             {
-                UE_LOG(LogTemp, Warning, TEXT("AIController was not automatically assigned, assigning manually."));
-                AIController = GetWorld()->SpawnActor<AEnemy_Controller>(AEnemy_Controller::StaticClass(), SpawnLocation, SpawnRotation);
-                if (AIController)
+                // Setze den AIController für den Gegner (wird oft automatisch gemacht, aber sicherheitshalber)
+                AEnemy_Controller* AIController = Cast<AEnemy_Controller>(Enemy_SlowAF->GetController());
+
+                if (!AIController)
                 {
-                    AIController->Possess(Enemy_SlowAF); // AIController übernimmt den Gegner
+                    UE_LOG(LogTemp, Warning, TEXT("AIController was not automatically assigned, assigning manually."));
+                    AIController = GetWorld()->SpawnActor<AEnemy_Controller>(AEnemy_Controller::StaticClass(), SpawnLocation, SpawnRotation);
+                    if (AIController)
+                    {
+                        AIController->Possess(Enemy_SlowAF); // AIController übernimmt den Gegner
+                    }
                 }
             }
-        }
-        else
-        {
-            UE_LOG(LogTemp, Error, TEXT("Failed to spawn Enemy!"));
+            else
+            {
+                UE_LOG(LogTemp, Error, TEXT("Failed to spawn Enemy!"));
+            }
         }
     }
-    else
+   else
+   {
+      UE_LOG(LogTemp, Error, TEXT("EnemyClass not set!"));
+    }
+
+    /*if (spawnCount == MaxEnemies)
     {
-        UE_LOG(LogTemp, Error, TEXT("EnemyClass not set!"));
-    }
+        FTimerHandle UnusedHandle;
+        GetWorld()->GetTimerManager().SetTimer(UnusedHandle, [this]()
+            {
+                UWorld* World = GetWorld();
+                if (World)
+                {
+                    UGameplayStatics::OpenLevel(World, FName(TEXT("TestMap")));
+                }
+            }, 0.1f, false);
+    }*/
 }
 
 void AEnemySpawn::ColletcWayPoints()
@@ -193,6 +217,9 @@ void AEnemySpawn::StartCountWaypoint()
 void AEnemySpawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+    if (spawnCount >= MaxEnemies)
+    {
+        GetWorldTimerManager().ClearTimer(SpawnTimerHandle);
+    }
 }
 

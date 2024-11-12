@@ -39,10 +39,15 @@ void AEnemy::Tick(float DeltaTime)
 	EnemyDead();
 }
 
-void AEnemy::GetDmgEnemy(float dmg)
+bool AEnemy::GetDmgEnemy(float dmg)
 {
-	life -= 100;
+	life -= dmg;
+    if (life <= 0) 
+    {
+        return true;
+    }
 	UE_LOG(LogTemp, Warning, TEXT("Enemy life after damage: %f"), life);
+    return false;
 }
 
 void AEnemy::EnemyDead()

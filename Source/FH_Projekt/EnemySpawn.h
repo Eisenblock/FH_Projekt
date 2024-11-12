@@ -72,9 +72,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
 	int32 MaxEnemies;
 
+	int32 spawnCount;
 	// Aktuelle Anzahl der gespawnten Gegner
 	int32 CurrentEnemies;
-
+	FString CurrentLevelName;
 	float LifeValue = 100.0f;
 
 public:
