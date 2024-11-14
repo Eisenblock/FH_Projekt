@@ -10,5 +10,14 @@
 
 void UMyGameInstance::Changemap()
 {
-	UGameplayStatics::OpenLevel(GetWorld(), FName(TEXT("TestMap")));
+    UWorld* World = GetWorld();  // Use GetWorld() directly
+
+    if (World)
+    {
+        UGameplayStatics::OpenLevel(World, "TestMap");
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Changemap failed: GetWorld() returned nullptr."));
+    }
 }

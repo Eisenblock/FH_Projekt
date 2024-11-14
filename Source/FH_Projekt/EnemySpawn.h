@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "MyGameInstance.h"
 #include "EnemySpawn.generated.h"
 
 // Forward Declaration der Gegnerklasse
@@ -36,6 +37,7 @@ protected:
 	int32 a = 0;
 	int32 b;
 	float extralife;
+	bool changeMap = true;
 
 	// Intervall für das Spawnen von Gegnern (in Sekunden)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
@@ -45,6 +47,7 @@ protected:
 	void SpawnEnemy(AActor* posSpawn);
 	void ColletcWayPoints();
 	void StartCountWaypoint();
+	void DelayMapChange();
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Waypoints")
@@ -72,15 +75,18 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
 	int32 MaxEnemies;
 
-	int32 spawnCount;
+	int32 spawnCount = 0;
 	// Aktuelle Anzahl der gespawnten Gegner
 	int32 CurrentEnemies;
 	FString CurrentLevelName;
 	float LifeValue = 100.0f;
+	FTimerHandle DelayTimerHandle;
 
 public:
 	// Wird jede Frame aufgerufen
 	virtual void Tick(float DeltaTime) override;
+
+	UMyGameInstance* MyGameInstance;
 
 	// Klasse des Gegners, der gespawnt werden soll
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")

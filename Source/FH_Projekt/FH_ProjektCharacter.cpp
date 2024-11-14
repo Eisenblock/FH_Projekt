@@ -118,11 +118,11 @@ void AFH_ProjektCharacter::Tick(float DeltaTime)
 {
 	current_ammo = CurrentWeaponComponent->current_ammo;
 	max_ammo = CurrentWeaponComponent->max_ammo;
-	float a = 15;
+	/*float a = 4;
 	if ( a <= killscore) 
 	{
 		MyGameInstance->Changemap();
-	}
+	}*/
 }
 
 

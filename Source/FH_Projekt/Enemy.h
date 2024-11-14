@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "FH_ProjektCharacter.h"
 #include "Enemy.generated.h"
 
 UCLASS()
@@ -27,6 +28,9 @@ public:
 	void EnemyDead();
 	void Attack();
 	void EnemyGetLife(float life_);
+	void GetDistanceToPlayer();
+	void ChasePlayer();
+	void ResetAttack();
 	 
 
 	UFUNCTION()
@@ -42,8 +46,30 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
 	float speed;
 
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
+	float attack_speed;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
+	float aggro_range;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
+	float hit_range;
+
+	FVector goal_pos;
+	bool bCanAttack = true;
+	FTimerHandle AttackTimerHandle;
+
+	AFH_ProjektCharacter* playerCharacter;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
 	UAnimMontage* attack_anim;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
+	UAnimMontage* death_anim;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
+	UAnimMontage* gotDmg_anim;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
 	USkeletalMeshComponent* Mesh1P;

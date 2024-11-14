@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "FH_ProjektCharacter.h"
 #include "MyGameInstance.h"
+#include "Ball_AIController.h"
 #include "TimerManager.h"
 
 // Konstruktor: Standardwerte setzen
@@ -33,6 +34,23 @@ void AEnemySpawn::BeginPlay()
 	StartSpawning(Enemy_SlowAF);
     //StartEnemyGetLife(EnemyClass);
     
+    UWorld* World = GetWorld();
+    if (World)
+    {
+        MyGameInstance = Cast<UMyGameInstance>(World->GetGameInstance());
+        if (MyGameInstance)
+        {
+           
+        }
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("MyGameInstance is not valid!"));
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("GetWorld() is invalid!"));
+    }
 }
 
 
@@ -129,12 +147,12 @@ void AEnemySpawn::SpawnEnemy(AActor* posSpawn)
             if (Enemy_SlowAF)
             {
                 // Setze den AIController für den Gegner (wird oft automatisch gemacht, aber sicherheitshalber)
-                AEnemy_Controller* AIController = Cast<AEnemy_Controller>(Enemy_SlowAF->GetController());
+                ABall_AIController* AIController = Cast<ABall_AIController>(Enemy_SlowAF->GetController());
 
                 if (!AIController)
                 {
                     UE_LOG(LogTemp, Warning, TEXT("AIController was not automatically assigned, assigning manually."));
-                    AIController = GetWorld()->SpawnActor<AEnemy_Controller>(AEnemy_Controller::StaticClass(), SpawnLocation, SpawnRotation);
+                    AIController = GetWorld()->SpawnActor<ABall_AIController>(ABall_AIController::StaticClass(), SpawnLocation, SpawnRotation);
                     if (AIController)
                     {
                         AIController->Possess(Enemy_SlowAF); // AIController übernimmt den Gegner
@@ -152,18 +170,7 @@ void AEnemySpawn::SpawnEnemy(AActor* posSpawn)
       UE_LOG(LogTemp, Error, TEXT("EnemyClass not set!"));
     }
 
-    /*if (spawnCount == MaxEnemies)
-    {
-        FTimerHandle UnusedHandle;
-        GetWorld()->GetTimerManager().SetTimer(UnusedHandle, [this]()
-            {
-                UWorld* World = GetWorld();
-                if (World)
-                {
-                    UGameplayStatics::OpenLevel(World, FName(TEXT("TestMap")));
-                }
-            }, 0.1f, false);
-    }*/
+    
 }
 
 void AEnemySpawn::ColletcWayPoints()
@@ -213,13 +220,32 @@ void AEnemySpawn::StartCountWaypoint()
             UE_LOG(LogTemp, Log, TEXT("Neuer Wert für a: %d"), x)   
 }
 
+void AEnemySpawn::DelayMapChange()
+{
+    MyGameInstance->Changemap();
+    UE_LOG(LogTemp, Error, TEXT("Do it"));
+}
+
 // Tick: Wird jede Frame aufgerufen
 void AEnemySpawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-    if (spawnCount >= MaxEnemies)
+    FTimerHandle UnusedHandle;
+    if (spawnCount == MaxEnemies && changeMap)
     {
-        GetWorldTimerManager().ClearTimer(SpawnTimerHandle);
+      
+                if (MyGameInstance)
+                {
+                    changeMap = false;
+                    MyGameInstance->Changemap();
+                    
+                }
+                else
+                {
+                    UE_LOG(LogTemp, Warning, TEXT("MyGameInstance is nullptr inside the timer lambda."));
+                }
+           
+
     }
 }
 

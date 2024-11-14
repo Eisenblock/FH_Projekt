@@ -10,6 +10,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Engine/Engine.h"      
 #include "GameFramework/Character.h"
+#include "Ball_AIController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
@@ -29,14 +30,35 @@ AEnemy::AEnemy()
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
-	
+    playerCharacter = Cast<AFH_ProjektCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 }
 
 // Called every frame
 void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+    GetDistanceToPlayer();
+    //ChasePlayer();
 	EnemyDead();
+
+    FVector PlayerLocation = playerCharacter->GetActorLocation();
+    FVector OtherActorLocation = GetActorLocation();
+
+    // Berechne die Entfernung
+    float Distance = FVector::Dist(PlayerLocation, OtherActorLocation);
+
+    if (hit_range >= Distance && bCanAttack) 
+    {
+        Attack();
+        bCanAttack = false;
+
+        GetWorld()->GetTimerManager().SetTimer(AttackTimerHandle, this, &AEnemy::ResetAttack, attack_speed, false);
+    }
+
+    if (aggro_range >= Distance) 
+    {
+        ChasePlayer();
+    }
 }
 
 bool AEnemy::GetDmgEnemy(float dmg)
@@ -60,7 +82,7 @@ void AEnemy::EnemyDead()
 
 void AEnemy::Attack()
 {
-    AFH_ProjektCharacter* playerCharacter = Cast<AFH_ProjektCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+   // AFH_ProjektCharacter* playerCharacter = Cast<AFH_ProjektCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
    
     UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
     UE_LOG(LogTemp, Warning, TEXT("AttackMethod"));
@@ -88,6 +110,38 @@ void AEnemy::EnemyGetLife(float life_)
 {
     life += life_;
     UE_LOG(LogTemp, Log, TEXT("Aktueller Lebenswert: %f"), life);
+}
+
+void AEnemy::GetDistanceToPlayer()
+{
+   // ACharacter* PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+
+    // Richtung berechnen
+    goal_pos = (playerCharacter->GetActorLocation() - GetActorLocation()).GetSafeNormal();
+    goal_pos.IsNormalized();
+}
+
+void AEnemy::ChasePlayer()
+{
+    FVector NewLocation = playerCharacter->GetActorLocation();
+
+    // Debug: Aktuelle Position des Balls und Zielposition anzeigen
+    //UE_LOG(LogTemp, Warning, TEXT("Current Position: %s"), *GetActorLocation().ToString());
+    //UE_LOG(LogTemp, Warning, TEXT("New Location (Target Position): %s"), *NewLocation.ToString());
+
+    if (ABall_AIController* AIController = Cast<ABall_AIController>(GetController()))
+    {
+        // Beispielziel in Richtung des Spielers
+        AIController->MoveToTargetLocation(NewLocation);
+
+        // Debug: Zeigt an, dass MoveToLocation aufgerufen wird
+        //UE_LOG(LogTemp, Warning, TEXT("AIController is moving to %s"), *NewLocation.ToString());
+    }
+}
+
+void AEnemy::ResetAttack()
+{
+    bCanAttack = true;
 }
 
 
