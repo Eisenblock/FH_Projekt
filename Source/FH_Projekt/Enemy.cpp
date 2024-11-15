@@ -23,7 +23,7 @@ AEnemy::AEnemy()
     GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::OnOverlapBegin);
     GetCapsuleComponent()->SetVisibility(true);
     life = 100;
-
+    can_die = false;
 }
 
 // Called when the game starts or when spawned
@@ -31,6 +31,8 @@ void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
     playerCharacter = Cast<AFH_ProjektCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+    //charMovement = GetCharacterMovement();
+
 }
 
 // Called every frame
@@ -64,20 +66,71 @@ void AEnemy::Tick(float DeltaTime)
 bool AEnemy::GetDmgEnemy(float dmg)
 {
 	life -= dmg;
+
+    if(life > 0)
+    {
+   
+    UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+    if (!AnimInstance)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("AnimInstance ist nullptr!"));
+        return false;
+    }
+
+    if (gotDmg_anim)
+    {
+       
+        AnimInstance->Montage_Play(gotDmg_anim, 1.0f);
+
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("shoot_anim ist nullptr!"));
+    } 
+    }
+
     if (life <= 0) 
     {
         return true;
     }
-	UE_LOG(LogTemp, Warning, TEXT("Enemy life after damage: %f"), life);
+	//UE_LOG(LogTemp, Warning, TEXT("Enemy life after damage: %f"), life);
     return false;
 }
 
 void AEnemy::EnemyDead()
 {
-	if (life <= 0) 
+    charMovement = GetCharacterMovement();
+
+	if (life <= 0 && can_die == false) 
 	{
-		Destroy();
+        can_die = true;
+        UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+        if (!AnimInstance)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("AnimInstance ist nullptr!"));
+            return;
+        }
+
+        if (death_anim)
+        {
+            charMovement->MaxWalkSpeed = 0.0f;
+            AnimInstance->Montage_Play(death_anim, 1.0f);
+           // GetWorld()->GetTimerManager().SetTimer(DestroyTimerHandle, this, &AEnemy::DestroyAfterDelay, 2.0f, false);
+        }
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("shoot_anim ist nullptr!"));
+        }
+
+
+        Destroy();
 	}
+}
+
+void AEnemy::DestroyAfterDelay()
+{
+    // Zerstöre das Objekt nach dem Timer
+    Destroy();
 }
 
 void AEnemy::Attack()

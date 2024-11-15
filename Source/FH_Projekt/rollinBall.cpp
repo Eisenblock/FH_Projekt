@@ -65,7 +65,7 @@ void ArollinBall::Tick(float DeltaTime)
         AIController->MoveToTargetLocation(NewLocation);
 
         // Debug: Zeigt an, dass MoveToLocation aufgerufen wird
-        //UE_LOG(LogTemp, Warning, TEXT("AIController is moving to %s"), *NewLocation.ToString());
+        UE_LOG(LogTemp, Warning, TEXT("AIController is moving to %s"), *NewLocation.ToString());
     }
     //SetActorLocation(NewLocation);
 }

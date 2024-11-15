@@ -31,6 +31,7 @@ public:
 	void GetDistanceToPlayer();
 	void ChasePlayer();
 	void ResetAttack();
+	void DestroyAfterDelay();
 	 
 
 	UFUNCTION()
@@ -60,14 +61,19 @@ public:
 
 	FVector goal_pos;
 	bool bCanAttack = true;
+	bool can_die = false;
 	FTimerHandle AttackTimerHandle;
+	FTimerHandle DestroyTimerHandle;
 
 	AFH_ProjektCharacter* playerCharacter;
+	UCharacterMovementComponent* charMovement;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
 	UAnimMontage* attack_anim;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
 	UAnimMontage* death_anim;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
 	UAnimMontage* gotDmg_anim;
 

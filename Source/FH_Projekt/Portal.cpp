@@ -45,7 +45,7 @@ void APortal::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherA
             FTimerHandle UnusedHandle;
             GetWorld()->GetTimerManager().SetTimer(UnusedHandle, [this]()
                 {
-                    UGameplayStatics::OpenLevel(this, FName(TEXT("TestMap")));
+                    UGameplayStatics::OpenLevel(this, FName(TEXT("TestMap2")));
                 }, 0.5f, false);
         }
     }
