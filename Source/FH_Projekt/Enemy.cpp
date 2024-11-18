@@ -11,6 +11,7 @@
 #include "Engine/Engine.h"      
 #include "GameFramework/Character.h"
 #include "Ball_AIController.h"
+#include "Math/UnrealMathUtility.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
@@ -31,8 +32,7 @@ void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
     playerCharacter = Cast<AFH_ProjektCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-    //charMovement = GetCharacterMovement();
-
+    charMovement = GetCharacterMovement();
 }
 
 // Called every frame
@@ -70,23 +70,30 @@ bool AEnemy::GetDmgEnemy(float dmg)
     if(life > 0)
     {
    
-    UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-    if (!AnimInstance)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("AnimInstance ist nullptr!"));
-        return false;
-    }
-
-    if (gotDmg_anim)
-    {
+    
+        UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+    
+        if (!AnimInstance)   
+        {
        
-        AnimInstance->Montage_Play(gotDmg_anim, 1.0f);
+            UE_LOG(LogTemp, Warning, TEXT("AnimInstance ist nullptr!"));        
+            return false;
+   
+        }
 
-    }
-    else
-    {
-        UE_LOG(LogTemp, Warning, TEXT("shoot_anim ist nullptr!"));
-    } 
+   
+        if (gotDmg_anim)   
+        {
+            speed = charMovement->MaxWalkSpeed;
+            charMovement->MaxWalkSpeed = 0.0f;
+            GetWorld()->GetTimerManager().SetTimer(SpeedTimerHandle, this, &AEnemy::ResetSpeed, 1.0f, false);
+            AnimInstance->Montage_Play(gotDmg_anim, 0.7f);
+  
+        }    
+        else 
+        {       
+            UE_LOG(LogTemp, Warning, TEXT("shoot_anim ist nullptr!")); 
+        } 
     }
 
     if (life <= 0) 
@@ -99,7 +106,7 @@ bool AEnemy::GetDmgEnemy(float dmg)
 
 void AEnemy::EnemyDead()
 {
-    charMovement = GetCharacterMovement();
+    //charMovement = GetCharacterMovement();
 
 	if (life <= 0 && can_die == false) 
 	{
@@ -113,9 +120,21 @@ void AEnemy::EnemyDead()
 
         if (death_anim)
         {
+            
             charMovement->MaxWalkSpeed = 0.0f;
+            GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
             AnimInstance->Montage_Play(death_anim, 1.0f);
-           // GetWorld()->GetTimerManager().SetTimer(DestroyTimerHandle, this, &AEnemy::DestroyAfterDelay, 2.0f, false);
+            int32 RandomNumber = FMath::RandRange(1, 10);
+            if (RandomNumber <= 2)
+            { 
+                spawnPickUpLife();
+            }
+            else
+            {
+
+            }
+           
+            GetWorld()->GetTimerManager().SetTimer(DestroyTimerHandle, this, &AEnemy::DestroyAfterDelay, 2.0f, false);
         }
         else
         {
@@ -123,7 +142,7 @@ void AEnemy::EnemyDead()
         }
 
 
-        Destroy();
+        //Destroy();
 	}
 }
 
@@ -133,10 +152,55 @@ void AEnemy::DestroyAfterDelay()
     Destroy();
 }
 
+void AEnemy::ResetSpeed()
+{
+    if (life > 0) 
+    { 
+        charMovement->MaxWalkSpeed = speed;
+    }
+    else
+    {
+        charMovement->MaxWalkSpeed = 0;
+    }
+}
+
+void AEnemy::spawnPickUpLife()
+{
+    if (pickUpife) // Ensure the subclass is specified
+    {
+        FActorSpawnParameters SpawnParams;
+        SpawnParams.Owner = this;
+        SpawnParams.Instigator = GetInstigator();
+
+        // Set spawn location and rotation
+        FVector SpawnLocation = GetActorLocation() + FVector(10.0f, 0.0f, 0.0f); // Offset to avoid overlap
+        FRotator SpawnRotation = GetActorRotation();
+
+        // Spawn the enemy subclass
+        AGetLife* SpawnedEnemy = GetWorld()->SpawnActor<AGetLife>(pickUpife, SpawnLocation, SpawnRotation, SpawnParams);
+
+        if (SpawnedEnemy)
+        {
+            UE_LOG(LogTemp, Log, TEXT("Successfully spawned enemy: %s"), *SpawnedEnemy->GetName());
+        }
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("Failed to spawn enemy!"));
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("EnemyClass is not set!"));
+    }
+}
+   
+
 void AEnemy::Attack()
 {
    // AFH_ProjektCharacter* playerCharacter = Cast<AFH_ProjektCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-   
+    if (can_die == false)
+    { 
+    
     UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
     UE_LOG(LogTemp, Warning, TEXT("AttackMethod"));
 
@@ -148,15 +212,21 @@ void AEnemy::Attack()
     }
 
     // Check if the attack animation montage is assigned
+    
     if (attack_anim)
     {
         AnimInstance->Montage_Play(attack_anim, 1.0f);
         playerCharacter->GetDmg(20);
+        charMovement->MaxWalkSpeed = 0;
+        GetWorld()->GetTimerManager().SetTimer(SpeedTimerHandle, this, &AEnemy::ResetSpeed, 2.0f, false);
     }
     else
     {
         UE_LOG(LogTemp, Warning, TEXT("shoot_anim ist nullptr!"));
     }
+
+    }
+   
 }
 
 void AEnemy::EnemyGetLife(float life_)

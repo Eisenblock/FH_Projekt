@@ -191,7 +191,7 @@ void AFH_ProjektCharacter::Reload()
 	if (animInstance != nullptr )
 	{
 		animInstance->Montage_Play(reload_anim, 1.0f);
-		CurrentWeaponComponent->GetAmmo_R();
+		//CurrentWeaponComponent->GetAmmo_R();
 	}
 }
 
@@ -270,6 +270,15 @@ void AFH_ProjektCharacter::ChangeWeapon()
 		s_weaponsA->SetActorHiddenInGame(false);
 		current_weapon = s_weapon;
 		CurrentWeaponComponent = s_WeaponComponent;
+	}
+}
+
+void AFH_ProjektCharacter::GetLife(float life_amount)
+{
+	life += life_amount;
+	if (life > 100)
+	{
+		life = 100.0f;
 	}
 }
 

@@ -88,9 +88,8 @@ public:
 
 	UMyGameInstance* MyGameInstance;
 
-	// Klasse des Gegners, der gespawnt werden soll
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
-	TSubclassOf<AEnemy> EnemyClass;
+	TArray<TSubclassOf<AEnemy>> EnemyClasses;
 
 	// Funktion zum Starten des Spawnens
 	UFUNCTION(BlueprintCallable, Category = "Spawning")

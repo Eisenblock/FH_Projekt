@@ -104,7 +104,7 @@ public:
 	void GetDmg(float dmg);
 	UTP_WeaponComponent* EquipWeapon(TSubclassOf<class AActor> weapon,FName socketname);
 	void ChangeWeapon();
-
+	void GetLife(float life_amount);
 	void ApplyImpulse(const FVector& Direction, float ImpulseStrength);
 
 protected:

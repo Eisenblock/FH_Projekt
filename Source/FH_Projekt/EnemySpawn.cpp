@@ -97,11 +97,7 @@ void AEnemySpawn::StartSpawning(AEnemy* EnemyInstance)
 
 void AEnemySpawn::StartEnemyGetLife(TSubclassOf<AEnemy> Enemy)
 {
-    GetWorldTimerManager().SetTimer(HealthChangeTimer, [this, Enemy]()
-        {
-            EnemyGetLife(EnemyClass);
-
-        }, 10.0f, true);
+   
 }
 
 void AEnemySpawn::EnemyGetLife(TSubclassOf<AEnemy> Enemy)
@@ -126,51 +122,67 @@ void AEnemySpawn::EnemyGetLife(TSubclassOf<AEnemy> Enemy)
 void AEnemySpawn::SpawnEnemy(AActor* posSpawn)
 {
     
-
-    
-
     if (CurrentLevelName != "Testmap" && spawnCount != MaxEnemies)
     {
-        if (EnemyClass) // Stelle sicher, dass die Klasse gesetzt ist
+        if (EnemyClasses.Num() > 0) // Ensure there are enemy classes set
         {
-            FVector SpawnLocation = posSpawn->GetActorLocation();
-            FRotator SpawnRotation = posSpawn->GetActorRotation();
-
-            // Spawne den Gegner
-            Enemy_SlowAF = GetWorld()->SpawnActor<AEnemy>(EnemyClass, SpawnLocation, SpawnRotation);
-            spawnCount += 1;
-            /*int32 RandomNumber = FMath::RandRange(1, 10);
-             if (RandomNumber > 3)
-             {
-                 Enemy_SlowAF->speed = 600.0f;
-             }*/
-            if (Enemy_SlowAF)
+            // Randomly select an enemy class from the array
+            int32 RandomIndex = FMath::RandRange(1, 10);
+            TSubclassOf<AEnemy> SelectedEnemyClass = EnemyClasses[0];
+         
+            if (RandomIndex <= 2)
             {
-                // Setze den AIController für den Gegner (wird oft automatisch gemacht, aber sicherheitshalber)
-                ABall_AIController* AIController = Cast<ABall_AIController>(Enemy_SlowAF->GetController());
+                SelectedEnemyClass = EnemyClasses[0];
+            }
+            else
+            {
+                SelectedEnemyClass = EnemyClasses[1];
+            }
 
-                if (!AIController)
+
+            if (SelectedEnemyClass)
+            {
+                FVector SpawnLocation = posSpawn->GetActorLocation();
+                FRotator SpawnRotation = posSpawn->GetActorRotation();
+
+                // Spawn the enemy
+                Enemy_SlowAF = GetWorld()->SpawnActor<AEnemy>(SelectedEnemyClass, SpawnLocation, SpawnRotation);
+                spawnCount += 1;
+
+                if (Enemy_SlowAF)
                 {
-                    UE_LOG(LogTemp, Warning, TEXT("AIController was not automatically assigned, assigning manually."));
-                    AIController = GetWorld()->SpawnActor<ABall_AIController>(ABall_AIController::StaticClass(), SpawnLocation, SpawnRotation);
-                    if (AIController)
+                    // Set the AIController for the enemy
+                    ABall_AIController* AIController = Cast<ABall_AIController>(Enemy_SlowAF->GetController());
+
+                    if (!AIController)
                     {
-                        AIController->Possess(Enemy_SlowAF); // AIController übernimmt den Gegner
+                        UE_LOG(LogTemp, Warning, TEXT("AIController was not automatically assigned, assigning manually."));
+                        AIController = GetWorld()->SpawnActor<ABall_AIController>(ABall_AIController::StaticClass(), SpawnLocation, SpawnRotation);
+                        if (AIController)
+                        {
+                            AIController->Possess(Enemy_SlowAF); // AIController takes control of the enemy
+                        }
                     }
+                }
+                else
+                {
+                    UE_LOG(LogTemp, Error, TEXT("Failed to spawn Enemy!"));
                 }
             }
             else
             {
-                UE_LOG(LogTemp, Error, TEXT("Failed to spawn Enemy!"));
+                UE_LOG(LogTemp, Error, TEXT("SelectedEnemyClass is invalid!"));
             }
         }
+        else
+        {
+            UE_LOG(LogTemp, Error, TEXT("No enemy classes set in EnemyClasses array!"));
+        }
     }
-   else
-   {
-      UE_LOG(LogTemp, Error, TEXT("EnemyClass not set!"));
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Spawning conditions not met or max enemies reached!"));
     }
-
-    
 }
 
 void AEnemySpawn::ColletcWayPoints()
@@ -210,14 +222,13 @@ void AEnemySpawn::ColletcWayPoints()
 
 void AEnemySpawn::StartCountWaypoint()
 {
-           int32 x = FMath::RandRange(0, 3);
-            b = x;
+           
             if (SpawnInterval >= 0.1f) 
             { 
-                SpawnInterval -= 0.02f;
+                SpawnInterval -= 0.05f;
             }
            
-            UE_LOG(LogTemp, Log, TEXT("Neuer Wert für a: %d"), x)   
+            
 }
 
 void AEnemySpawn::DelayMapChange()

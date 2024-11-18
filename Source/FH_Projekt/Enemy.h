@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "FH_ProjektCharacter.h"
+#include "GetLife.h"
 #include "Enemy.generated.h"
 
 UCLASS()
@@ -32,6 +33,8 @@ public:
 	void ChasePlayer();
 	void ResetAttack();
 	void DestroyAfterDelay();
+	void ResetSpeed();
+	void spawnPickUpLife();
 	 
 
 	UFUNCTION()
@@ -44,7 +47,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
 	float life;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Enemy")
 	float speed;
 
 
@@ -64,6 +67,7 @@ public:
 	bool can_die = false;
 	FTimerHandle AttackTimerHandle;
 	FTimerHandle DestroyTimerHandle;
+	FTimerHandle SpeedTimerHandle;
 
 	AFH_ProjektCharacter* playerCharacter;
 	UCharacterMovementComponent* charMovement;
@@ -79,4 +83,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
 	USkeletalMeshComponent* Mesh1P;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
+	TSubclassOf<AGetLife> pickUpife;
 };

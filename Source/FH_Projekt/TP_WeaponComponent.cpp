@@ -59,7 +59,7 @@ void UTP_WeaponComponent::Fire(AFH_ProjektCharacter* TargetCharacter)
 
 			// Führe den Line Trace vom Muzzle-Socket durch
 			FHitResult onHit;
-			FVector TraceEnd = MuzzleLocation + (CameraRotation.Vector() * 3000); // 3000 Einheiten nach vorne
+			FVector TraceEnd = MuzzleLocation + (CameraRotation.Vector() * 5000); // 3000 Einheiten nach vorne
 
 			bool bHit = World->LineTraceSingleByChannel(onHit, MuzzleLocation, TraceEnd, ECollisionChannel::ECC_Pawn, queryParams);
 			lostAmmo();
@@ -85,7 +85,7 @@ void UTP_WeaponComponent::Fire(AFH_ProjektCharacter* TargetCharacter)
 						{
 							TargetCharacter->killscore += 1;
 						}
-						ApplyKnockbackAndStun(HitEnemy);
+						//ApplyKnockbackAndStun(HitEnemy);
 					}
 					else
 					{
