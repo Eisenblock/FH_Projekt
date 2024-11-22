@@ -2,6 +2,8 @@
 
 
 #include "Weapon.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 
 // Sets default values
 AWeapon::AWeapon()
@@ -32,6 +34,7 @@ void AWeapon::BeginPlay()
         weaponComponent->max_ammo = max_ammo;
         weaponComponent->reload_sound = reload_sound;
         weaponComponent->dmg = dmg;
+        weaponComponent->NiagaraComponent = NiagaraComponent;
     }
     else
     {

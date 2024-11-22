@@ -4,6 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "Sound/SoundBase.h"
 #include "TP_WeaponComponent.h"
+#include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Weapon.generated.h"
 
@@ -51,6 +52,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GamePlay")
 	float attackSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GamePlay")
+	UNiagaraComponent* NiagaraComponent;
 
 	// Sets default values for this actor's properties
 	AWeapon();

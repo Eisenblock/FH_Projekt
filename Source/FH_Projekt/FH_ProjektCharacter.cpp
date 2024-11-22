@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "FH_ProjektCharacter.h"
+#include "EnemySpawn.h"
 #include "FH_ProjektProjectile.h"
 #include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
@@ -118,6 +119,27 @@ void AFH_ProjektCharacter::Tick(float DeltaTime)
 {
 	current_ammo = CurrentWeaponComponent->current_ammo;
 	max_ammo = CurrentWeaponComponent->max_ammo;
+
+	
+
+	timer += DeltaTime;
+	changeMap_timer -= DeltaTime;
+
+
+	if (current_ammo == 0 && !breload)
+	{
+		Reload();
+		breload = true;
+
+		GetWorld()->GetTimerManager().SetTimer(
+			reloadTimerHandle,     // Timer handle
+			this,                       // Target object
+			&AFH_ProjektCharacter::Resetreload, // Method to call
+			3.0f,                       // Time in seconds
+			false                       // Do not loop
+		);
+	}
+
 	/*float a = 4;
 	if ( a <= killscore) 
 	{
@@ -203,7 +225,7 @@ void AFH_ProjektCharacter::GetDmg(float dmg)
 		FeedbackDmgTimerHandle,     // Timer handle
 		this,                       // Target object
 		&AFH_ProjektCharacter::ResetFeedbackDmg, // Method to call
-		5.0f,                       // Time in seconds
+		2.0f,                       // Time in seconds
 		false                       // Do not loop
 	);
 	MyGameInstance->PlayerLife = life;
@@ -303,6 +325,11 @@ void AFH_ProjektCharacter::ApplyImpulse(const FVector& Direction, float ImpulseS
 void AFH_ProjektCharacter::ResetFeedbackDmg()
 {
 	feedback_dmg = false;
+}
+
+void AFH_ProjektCharacter::Resetreload()
+{
+	breload = false;
 }
 
 void AFH_ProjektCharacter::Move(const FInputActionValue& Value)

@@ -76,6 +76,7 @@ public:
 	//Weapon Stats
 	FTimerHandle AttackTimerHandle;
 	bool bIsAttacking = false;
+	bool breload = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GamePlay")
 	bool feedback_dmg = false;
@@ -93,12 +94,20 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GamePlay")
 	float killscore;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float timer = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float changeMap_timer = 60.0f;
+
 	
 	UTP_WeaponComponent* CurrentWeaponComponent;
 	UTP_WeaponComponent* m_WeaponComponent;
 	UTP_WeaponComponent* s_WeaponComponent;
 	UMyGameInstance* MyGameInstance;
 	FTimerHandle  FeedbackDmgTimerHandle;
+	FTimerHandle  reloadTimerHandle;
+
 	
 
 	
@@ -113,6 +122,7 @@ public:
 	void ApplyImpulse(const FVector& Direction, float ImpulseStrength);
 	// Reset feedback_dmg
 	void ResetFeedbackDmg();
+	void Resetreload();
 
 
 protected:
