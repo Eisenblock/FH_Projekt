@@ -21,11 +21,11 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	bool GetDmgEnemy(float dmg);
+	bool GetDmgEnemy(float dmg, FVector HitLocation, FVector HitNormal);
 	void EnemyDead();
 	void Attack();
 	void EnemyGetLife(float life_);
@@ -35,7 +35,9 @@ public:
 	void DestroyAfterDelay();
 	void ResetSpeed();
 	void spawnPickUpLife();
-	 
+
+	void SpawnImpactEffect(FVector HitLocation, FRotator HitRotation);
+
 
 	UFUNCTION()
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
@@ -43,7 +45,7 @@ public:
 		bool bFromSweep, const FHitResult& SweepResult);
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
 	float life;
 
@@ -65,6 +67,7 @@ public:
 	FVector goal_pos;
 	bool bCanAttack = true;
 	bool can_die = false;
+	bool rangeEnemy = false;
 	FTimerHandle AttackTimerHandle;
 	FTimerHandle DestroyTimerHandle;
 	FTimerHandle SpeedTimerHandle;
@@ -86,4 +89,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
 	TSubclassOf<AGetLife> pickUpife;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
+	UNiagaraSystem* ImpactEffectNiagara;
 };

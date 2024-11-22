@@ -29,25 +29,36 @@ protected:
 
 	FTimerHandle UpdateIndexTimerHandle;
 	FTimerHandle HealthChangeTimer;
+	FTimerHandle ActivationTimer;
+
+	int32 CurrentIndex = 0;
+	int32 CurrentIndex2 = 0;
 
 	// Timer-Handle für wiederholtes Spawnen
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
 	FTimerHandle GetLifeTime_Enemy;
 
-	int32 a = 0;
+	float a = 0;
 	int32 b;
 	float extralife;
 	bool changeMap = true;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
+	float timer_ChangeMap = 0;
+
 	// Intervall für das Spawnen von Gegnern (in Sekunden)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
 	float SpawnInterval;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
+	float DamageArea_timer;
 
 	// Funktion, die den Gegner spawnt
 	void SpawnEnemy(AActor* posSpawn);
 	void ColletcWayPoints();
 	void StartCountWaypoint();
 	void DelayMapChange();
+	void SetDamageArea();
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Waypoints")
@@ -75,12 +86,17 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
 	int32 MaxEnemies;
 
+
+
 	int32 spawnCount = 0;
 	// Aktuelle Anzahl der gespawnten Gegner
 	int32 CurrentEnemies;
 	FString CurrentLevelName;
 	float LifeValue = 100.0f;
 	FTimerHandle DelayTimerHandle;
+	float timer = 0; 
+	bool bTriggeredClearTimers = false; 
+	bool bTriggeredChangeMap = false;
 
 public:
 	// Wird jede Frame aufgerufen

@@ -76,6 +76,10 @@ public:
 	//Weapon Stats
 	FTimerHandle AttackTimerHandle;
 	bool bIsAttacking = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GamePlay")
+	bool feedback_dmg = false;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GamePlay")
 	int32 current_ammo;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GamePlay")
@@ -94,6 +98,7 @@ public:
 	UTP_WeaponComponent* m_WeaponComponent;
 	UTP_WeaponComponent* s_WeaponComponent;
 	UMyGameInstance* MyGameInstance;
+	FTimerHandle  FeedbackDmgTimerHandle;
 	
 
 	
@@ -106,6 +111,9 @@ public:
 	void ChangeWeapon();
 	void GetLife(float life_amount);
 	void ApplyImpulse(const FVector& Direction, float ImpulseStrength);
+	// Reset feedback_dmg
+	void ResetFeedbackDmg();
+
 
 protected:
 	/** Called for movement input */

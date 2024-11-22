@@ -7,6 +7,8 @@
 #include "FH_ProjektCharacter.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/Character.h" 
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Engine/Engine.h"      
 #include "GameFramework/Character.h"
@@ -17,10 +19,10 @@
 // Sets default values
 AEnemy::AEnemy()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+    // Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+    PrimaryActorTick.bCanEverTick = true;
     Mesh1P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh1P"));
-	Tags.Add(FName("Enemy"));
+    Tags.Add(FName("Enemy"));
     GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::OnOverlapBegin);
     GetCapsuleComponent()->SetVisibility(true);
     life = 100;
@@ -30,7 +32,7 @@ AEnemy::AEnemy()
 // Called when the game starts or when spawned
 void AEnemy::BeginPlay()
 {
-	Super::BeginPlay();
+    Super::BeginPlay();
     playerCharacter = Cast<AFH_ProjektCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
     charMovement = GetCharacterMovement();
 }
@@ -38,10 +40,10 @@ void AEnemy::BeginPlay()
 // Called every frame
 void AEnemy::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
+    Super::Tick(DeltaTime);
     GetDistanceToPlayer();
     //ChasePlayer();
-	EnemyDead();
+    EnemyDead();
 
     FVector PlayerLocation = playerCharacter->GetActorLocation();
     FVector OtherActorLocation = GetActorLocation();
@@ -49,7 +51,7 @@ void AEnemy::Tick(float DeltaTime)
     // Berechne die Entfernung
     float Distance = FVector::Dist(PlayerLocation, OtherActorLocation);
 
-    if (hit_range >= Distance && bCanAttack) 
+    if (hit_range >= Distance && bCanAttack)
     {
         Attack();
         bCanAttack = false;
@@ -57,50 +59,48 @@ void AEnemy::Tick(float DeltaTime)
         GetWorld()->GetTimerManager().SetTimer(AttackTimerHandle, this, &AEnemy::ResetAttack, attack_speed, false);
     }
 
-    if (aggro_range >= Distance) 
+    if (aggro_range >= Distance)
     {
         ChasePlayer();
     }
 }
 
-bool AEnemy::GetDmgEnemy(float dmg)
+bool AEnemy::GetDmgEnemy(float dmg, FVector HitLocation, FVector HitNormal)
 {
-	life -= dmg;
+    life -= dmg;
 
-    if(life > 0)
+    if (life > 0)
     {
-   
-    
         UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-    
-        if (!AnimInstance)   
+
+        if (!AnimInstance)
         {
-       
-            UE_LOG(LogTemp, Warning, TEXT("AnimInstance ist nullptr!"));        
+            UE_LOG(LogTemp, Warning, TEXT("AnimInstance ist nullptr!"));
             return false;
-   
         }
 
-   
-        if (gotDmg_anim)   
+        if (gotDmg_anim)
         {
             speed = charMovement->MaxWalkSpeed;
             charMovement->MaxWalkSpeed = 0.0f;
             GetWorld()->GetTimerManager().SetTimer(SpeedTimerHandle, this, &AEnemy::ResetSpeed, 1.0f, false);
             AnimInstance->Montage_Play(gotDmg_anim, 0.7f);
-  
-        }    
-        else 
-        {       
-            UE_LOG(LogTemp, Warning, TEXT("shoot_anim ist nullptr!")); 
-        } 
+        }
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("gotDmg_anim ist nullptr!"));
+        }
+
+        // Spawn the Niagara effect at the hit location
+
     }
 
-    if (life <= 0) 
+    SpawnImpactEffect(HitLocation, HitNormal.Rotation());
+
+    if (life <= 0)
     {
         return true;
     }
-	//UE_LOG(LogTemp, Warning, TEXT("Enemy life after damage: %f"), life);
     return false;
 }
 
@@ -108,8 +108,8 @@ void AEnemy::EnemyDead()
 {
     //charMovement = GetCharacterMovement();
 
-	if (life <= 0 && can_die == false) 
-	{
+    if (life <= 0 && can_die == false)
+    {
         can_die = true;
         UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
         if (!AnimInstance)
@@ -120,20 +120,20 @@ void AEnemy::EnemyDead()
 
         if (death_anim)
         {
-            
+
             charMovement->MaxWalkSpeed = 0.0f;
             GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
             AnimInstance->Montage_Play(death_anim, 1.0f);
             int32 RandomNumber = FMath::RandRange(1, 10);
             if (RandomNumber <= 2)
-            { 
+            {
                 spawnPickUpLife();
             }
             else
             {
 
             }
-           
+
             GetWorld()->GetTimerManager().SetTimer(DestroyTimerHandle, this, &AEnemy::DestroyAfterDelay, 2.0f, false);
         }
         else
@@ -143,7 +143,7 @@ void AEnemy::EnemyDead()
 
 
         //Destroy();
-	}
+    }
 }
 
 void AEnemy::DestroyAfterDelay()
@@ -154,8 +154,8 @@ void AEnemy::DestroyAfterDelay()
 
 void AEnemy::ResetSpeed()
 {
-    if (life > 0) 
-    { 
+    if (life > 0)
+    {
         charMovement->MaxWalkSpeed = speed;
     }
     else
@@ -193,40 +193,57 @@ void AEnemy::spawnPickUpLife()
         UE_LOG(LogTemp, Warning, TEXT("EnemyClass is not set!"));
     }
 }
-   
 
-void AEnemy::Attack()
+void AEnemy::SpawnImpactEffect(FVector HitLocation, FRotator HitRotation)
 {
-   // AFH_ProjektCharacter* playerCharacter = Cast<AFH_ProjektCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-    if (can_die == false)
-    { 
-    
-    UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-    UE_LOG(LogTemp, Warning, TEXT("AttackMethod"));
-
-    // Check if the AnimInstance exists
-    if (!AnimInstance)
+    if (ImpactEffectNiagara != nullptr)
     {
-        UE_LOG(LogTemp, Warning, TEXT("AnimInstance ist nullptr!"));
-        return;
-    }
-
-    // Check if the attack animation montage is assigned
-    
-    if (attack_anim)
-    {
-        AnimInstance->Montage_Play(attack_anim, 1.0f);
-        playerCharacter->GetDmg(20);
-        charMovement->MaxWalkSpeed = 0;
-        GetWorld()->GetTimerManager().SetTimer(SpeedTimerHandle, this, &AEnemy::ResetSpeed, 2.0f, false);
+        UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+            GetWorld(),
+            ImpactEffectNiagara,
+            HitLocation,
+            HitRotation
+        );
     }
     else
     {
-        UE_LOG(LogTemp, Warning, TEXT("shoot_anim ist nullptr!"));
+        UE_LOG(LogTemp, Warning, TEXT("ImpactEffectNiagara is nullptr! Please assign it in the editor."));
     }
+}
+
+
+void AEnemy::Attack()
+{
+    // AFH_ProjektCharacter* playerCharacter = Cast<AFH_ProjektCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+    if (can_die == false)
+    {
+
+        UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+        UE_LOG(LogTemp, Warning, TEXT("AttackMethod"));
+
+        // Check if the AnimInstance exists
+        if (!AnimInstance)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("AnimInstance ist nullptr!"));
+            return;
+        }
+
+        // Check if the attack animation montage is assigned
+
+        if (attack_anim)
+        {
+            AnimInstance->Montage_Play(attack_anim, 1.0f);
+            playerCharacter->GetDmg(20);
+            charMovement->MaxWalkSpeed = 0;
+            GetWorld()->GetTimerManager().SetTimer(SpeedTimerHandle, this, &AEnemy::ResetSpeed, 2.0f, false);
+        }
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("shoot_anim ist nullptr!"));
+        }
 
     }
-   
+
 }
 
 void AEnemy::EnemyGetLife(float life_)
@@ -237,9 +254,9 @@ void AEnemy::EnemyGetLife(float life_)
 
 void AEnemy::GetDistanceToPlayer()
 {
-   // ACharacter* PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+    // ACharacter* PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 
-    // Richtung berechnen
+     // Richtung berechnen
     goal_pos = (playerCharacter->GetActorLocation() - GetActorLocation()).GetSafeNormal();
     goal_pos.IsNormalized();
 }
@@ -279,7 +296,7 @@ void AEnemy::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherAc
 // Called to bind functionality to input
 void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
+    Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }
 

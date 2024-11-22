@@ -3,18 +3,17 @@
 
 #include "MyGameInstance.h"
 #include <Kismet/GameplayStatics.h>
-
+#include "EnemySpawn.h"
 
 
 // Hier kannst du Logik hinzufügen, falls du beim Start des Spiels oder beim Laden von Leveln noch etwas initialisieren musst
 
 void UMyGameInstance::Changemap()
 {
-    UWorld* World = GetWorld();  // Use GetWorld() directly
-
-    if (World)
+    if (GetWorld())
     {
-        UGameplayStatics::OpenLevel(World, "TestMap");
+        
+        UGameplayStatics::OpenLevel(GetWorld(), "TestMap");
     }
     else
     {

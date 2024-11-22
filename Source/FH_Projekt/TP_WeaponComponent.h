@@ -12,21 +12,21 @@
 class AFH_ProjektCharacter;
 class AEnemy;
 
-UCLASS(Blueprintable, BlueprintType, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(Blueprintable, BlueprintType, ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class FH_PROJEKT_API UTP_WeaponComponent : public USkeletalMeshComponent
 {
 	GENERATED_BODY()
 
 public:
-	
+
 	float speed_enemy;
 
 	/** Gun muzzle's offset from the characters location */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	FVector MuzzleOffset;
 
 	/** MappingContext */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputMappingContext* FireMappingContext;
 
 
@@ -40,10 +40,15 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sound")
 	USoundBase* reload_sound;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sound")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Effects")
 	UNiagaraSystem* muzzle_flash;
 
-	
+
+	UNiagaraComponent* NiagaraComponent;
+
+	FTimerHandle DeactivationTimerHandle;
+
+
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -52,12 +57,13 @@ public:
 
 	UTP_WeaponComponent();
 
-	bool AttachWeapon(AFH_ProjektCharacter* TargetCharacter,FName socket);
+	bool AttachWeapon(AFH_ProjektCharacter* TargetCharacter, FName socket);
 	void Fire(AFH_ProjektCharacter* TargetCharacter);
 	void lostAmmo();
 	void GetAmmo_R();
 	void ApplyKnockbackAndStun(AEnemy* HitEnemy);
-	
+	void DeactivateNiagaraEffect();
+
 
 	float attackSpeed;
 	float dmg;

@@ -197,8 +197,17 @@ void AFH_ProjektCharacter::Reload()
 
 void AFH_ProjektCharacter::GetDmg(float dmg)
 {
+	feedback_dmg = true;
 	life -= dmg;
+	GetWorld()->GetTimerManager().SetTimer(
+		FeedbackDmgTimerHandle,     // Timer handle
+		this,                       // Target object
+		&AFH_ProjektCharacter::ResetFeedbackDmg, // Method to call
+		5.0f,                       // Time in seconds
+		false                       // Do not loop
+	);
 	MyGameInstance->PlayerLife = life;
+	
 	UE_LOG(LogTemp, Warning, TEXT("Life after damage: %f"), life);
 	if (life <= 0) 
 	{
@@ -289,6 +298,11 @@ void AFH_ProjektCharacter::ApplyImpulse(const FVector& Direction, float ImpulseS
 		// Anwendung des Impulses in die angegebene Richtung
 		LaunchCharacter(Direction * ImpulseStrength, true, true);  // bool Wert 1: Ignore current velocity, bool Wert 2: Affects gravity
 	}
+}
+
+void AFH_ProjektCharacter::ResetFeedbackDmg()
+{
+	feedback_dmg = false;
 }
 
 void AFH_ProjektCharacter::Move(const FInputActionValue& Value)
