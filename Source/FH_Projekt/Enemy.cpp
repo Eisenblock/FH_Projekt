@@ -2,7 +2,9 @@
 
 
 #include "Enemy.h"
+#include "ShootTest.h"
 #include "Enemy_Controller.h"
+#include "PoisonWave_Enemy.h"
 #include "Kismet/GameplayStatics.h"
 #include "FH_ProjektCharacter.h"
 #include "GameFramework/PlayerController.h"
@@ -14,6 +16,7 @@
 #include "GameFramework/Character.h"
 #include "Ball_AIController.h"
 #include "Math/UnrealMathUtility.h"
+#include "Projectile_Enemy.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
@@ -35,12 +38,14 @@ void AEnemy::BeginPlay()
     Super::BeginPlay();
     playerCharacter = Cast<AFH_ProjektCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
     charMovement = GetCharacterMovement();
+    
 }
 
 // Called every frame
 void AEnemy::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
+
     GetDistanceToPlayer();
     //ChasePlayer();
     EnemyDead();
@@ -51,10 +56,42 @@ void AEnemy::Tick(float DeltaTime)
     // Berechne die Entfernung
     float Distance = FVector::Dist(PlayerLocation, OtherActorLocation);
 
-    if (hit_range >= Distance && bCanAttack)
+    if (hit_range >= Distance && rangeEnemy)
+    {
+        GetWorld()->GetTimerManager().SetTimer(SpeedTimerHandle, this, &AEnemy::ResetSpeed, 1.0f, false);
+    }
+
+    if (hit_range >= Distance && waveEnemy)
+    {
+        GetWorld()->GetTimerManager().SetTimer(SpeedTimerHandle, this, &AEnemy::ResetSpeed, 4.0f, false);
+    }
+
+    if (hit_range >= Distance && bCanAttack && meeleEnemy && !can_die)
     {
         Attack();
         bCanAttack = false;
+        
+
+        GetWorld()->GetTimerManager().SetTimer(AttackTimerHandle, this, &AEnemy::ResetAttack, attack_speed, false);
+    }
+
+
+    if (hit_range >= Distance && bCanAttack && rangeEnemy && !can_die)
+    {
+        RangeAttack();
+        bCanAttack = false;
+        charMovement->MaxWalkSpeed = 0;
+
+
+        GetWorld()->GetTimerManager().SetTimer(AttackTimerHandle, this, &AEnemy::ResetAttack, attack_speed, false);
+    }
+
+
+    if (hit_range >= Distance && bCanAttack && waveEnemy && !can_die)
+    {
+        WaveAttack();
+        bCanAttack = false;
+        charMovement->MaxWalkSpeed = 0;
 
         GetWorld()->GetTimerManager().SetTimer(AttackTimerHandle, this, &AEnemy::ResetAttack, attack_speed, false);
     }
@@ -164,6 +201,11 @@ void AEnemy::ResetSpeed()
     }
 }
 
+void AEnemy::ZeroSpeed()
+{
+    charMovement->MaxWalkSpeed = 0;
+}
+
 void AEnemy::spawnPickUpLife()
 {
     if (pickUpife) // Ensure the subclass is specified
@@ -173,7 +215,7 @@ void AEnemy::spawnPickUpLife()
         SpawnParams.Instigator = GetInstigator();
 
         // Set spawn location and rotation
-        FVector SpawnLocation = GetActorLocation() + FVector(10.0f, 0.0f, 0.0f); // Offset to avoid overlap
+        FVector SpawnLocation = GetActorLocation() + FVector(0.0f, 0.0f, 0.0f); // Offset to avoid overlap
         FRotator SpawnRotation = GetActorRotation();
 
         // Spawn the enemy subclass
@@ -192,6 +234,16 @@ void AEnemy::spawnPickUpLife()
     {
         UE_LOG(LogTemp, Warning, TEXT("EnemyClass is not set!"));
     }
+}
+
+void AEnemy::TrackEnemyType()
+{
+
+}
+
+bool AEnemy::GetcanDie()
+{
+    return can_die;
 }
 
 void AEnemy::SpawnImpactEffect(FVector HitLocation, FRotator HitRotation)
@@ -215,8 +267,7 @@ void AEnemy::SpawnImpactEffect(FVector HitLocation, FRotator HitRotation)
 void AEnemy::Attack()
 {
     // AFH_ProjektCharacter* playerCharacter = Cast<AFH_ProjektCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-    if (can_die == false)
-    {
+    
 
         UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
         UE_LOG(LogTemp, Warning, TEXT("AttackMethod"));
@@ -232,17 +283,18 @@ void AEnemy::Attack()
 
         if (attack_anim)
         {
-            AnimInstance->Montage_Play(attack_anim, 1.0f);
-            playerCharacter->GetDmg(20);
+            AnimInstance->Montage_Play(attack_anim, 1.25f);
+           // playerCharacter->GetDmg(20);
             charMovement->MaxWalkSpeed = 0;
-            GetWorld()->GetTimerManager().SetTimer(SpeedTimerHandle, this, &AEnemy::ResetSpeed, 2.0f, false);
+            GetWorld()->GetTimerManager().SetTimer(SpeedZeroTimerHandle, this, &AEnemy::ZeroSpeed, 0.3f, false);
+            //GetWorld()->GetTimerManager().SetTimer(SpeedTimerHandle, this, &AEnemy::ResetSpeed, 2.0f, false);
         }
         else
         {
             UE_LOG(LogTemp, Warning, TEXT("shoot_anim ist nullptr!"));
         }
 
-    }
+    
 
 }
 
@@ -265,6 +317,17 @@ void AEnemy::ChasePlayer()
 {
     FVector NewLocation = playerCharacter->GetActorLocation();
 
+    FVector EnemyLocation = GetActorLocation();
+
+    // Berechne die Richtung zum Spieler
+    FVector DirectionToPlayer = (NewLocation - EnemyLocation).GetSafeNormal();
+
+    // Berechne die Rotation basierend auf der Richtung
+    FRotator TargetRotation = DirectionToPlayer.Rotation();
+
+    // Setze die Rotation des Gegners
+    SetActorRotation(FRotator(0.0f, TargetRotation.Yaw, 0.0f));
+
     // Debug: Aktuelle Position des Balls und Zielposition anzeigen
     //UE_LOG(LogTemp, Warning, TEXT("Current Position: %s"), *GetActorLocation().ToString());
     //UE_LOG(LogTemp, Warning, TEXT("New Location (Target Position): %s"), *NewLocation.ToString());
@@ -282,6 +345,84 @@ void AEnemy::ChasePlayer()
 void AEnemy::ResetAttack()
 {
     bCanAttack = true;
+}
+
+void AEnemy::RangeAttack()
+{
+    if (shoot2) // Überprüfen, ob eine gültige Klasse gesetzt ist
+    {
+        // Position und Rotation des Projektils bestimmen
+        FVector SpawnLocation = GetActorLocation() + FVector(0.0f, 0.0f, 0.0f);
+        FRotator SpawnRotation = GetActorRotation();
+
+        UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+        UE_LOG(LogTemp, Warning, TEXT("AttackMethod"));
+
+        // Check if the AnimInstance exists
+        if (!AnimInstance)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("AnimInstance ist nullptr!"));
+            return;
+        }
+
+        if (attackrange_anim)
+        {
+            AnimInstance->Montage_Play(attackrange_anim, 1.0f);
+        }
+
+        // Projektil in der Welt spawnen
+        AShootTest* Projectile = GetWorld()->SpawnActor<AShootTest>(shoot2, SpawnLocation, SpawnRotation);
+
+       /* if (Projectile)
+        {
+            // Optional: Zusätzliche Konfiguration des Projektils
+            Projectile->LaunchProjectile(1000.0f, 45.0f); // Stärke und Winkel
+        }*/
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("ShootClass is not set!"));
+    }
+}
+
+void AEnemy::WaveAttack()
+{
+    if (shoot2) // Überprüfen, ob eine gültige Klasse gesetzt ist
+    {
+        // Position und Rotation des Projektils bestimmen
+        USkeletalMeshComponent* MeshComp = GetMesh();
+        FVector SpawnLocation = MeshComp->GetSocketLocation("HeadSocket");
+        FRotator SpawnRotation = GetActorRotation();
+
+        UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+        UE_LOG(LogTemp, Warning, TEXT("AttackMethod"));
+
+        // Check if the AnimInstance exists
+        if (!AnimInstance)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("AnimInstance ist nullptr!"));
+            return;
+        }
+
+        if (attackwave_anim)
+        {
+            AnimInstance->Montage_Play(attackwave_anim, 1.25f);
+        }
+
+        // Projektil in der Welt spawnen
+        APoisonWave_Enemy* Projectile = GetWorld()->SpawnActor<APoisonWave_Enemy>(wave, SpawnLocation, SpawnRotation);
+        Projectile->GetEnemyPos(this,GetMesh());
+
+        /* if (Projectile)
+         {
+             // Optional: Zusätzliche Konfiguration des Projektils
+             Projectile->LaunchProjectile(1000.0f, 45.0f); // Stärke und Winkel
+         }*/
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("ShootClass is not set!"));
+    }
 }
 
 

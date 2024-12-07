@@ -8,10 +8,12 @@
 
 void UEnemyAttack::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
-	float dmg = 0.0f;
-
-	if (AFH_ProjektCharacter* character = Cast<AFH_ProjektCharacter>(MeshComp->GetOwner()))
-	{
-		character->GetDmg(20);
-	}
+    if (AEnemy* Enemy = Cast<AEnemy>(MeshComp->GetOwner()))
+    {
+        if (AFH_ProjektCharacter* Character = Cast<AFH_ProjektCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn()))
+        {
+            // Schaden zufügen
+            Character->GetDmg(20);
+        }
+    }
 }

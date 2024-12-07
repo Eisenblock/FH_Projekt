@@ -6,7 +6,11 @@
 #include "GameFramework/Character.h"
 #include "FH_ProjektCharacter.h"
 #include "GetLife.h"
+#include "Projectile_Enemy.h"
 #include "Enemy.generated.h"
+
+class AShootTest;
+class APoisonWave_Enemy;
 
 UCLASS()
 class FH_PROJEKT_API AEnemy : public ACharacter
@@ -32,9 +36,15 @@ public:
 	void GetDistanceToPlayer();
 	void ChasePlayer();
 	void ResetAttack();
+	void RangeAttack();
+	void WaveAttack();
 	void DestroyAfterDelay();
 	void ResetSpeed();
+	void ZeroSpeed();
 	void spawnPickUpLife();
+	void TrackEnemyType();
+
+	bool GetcanDie();
 
 	void SpawnImpactEffect(FVector HitLocation, FRotator HitRotation);
 
@@ -49,7 +59,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
 	float life;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Enemy")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
 	float speed;
 
 
@@ -64,19 +74,35 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
 	float hit_range;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
+	TSubclassOf<AProjectile_Enemy> shoot;
+
 	FVector goal_pos;
 	bool bCanAttack = true;
 	bool can_die = false;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
 	bool rangeEnemy = false;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
+	bool meeleEnemy = false;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
+	bool waveEnemy = false;
+
 	FTimerHandle AttackTimerHandle;
 	FTimerHandle DestroyTimerHandle;
 	FTimerHandle SpeedTimerHandle;
+	FTimerHandle SpeedZeroTimerHandle;
 
 	AFH_ProjektCharacter* playerCharacter;
 	UCharacterMovementComponent* charMovement;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
 	UAnimMontage* attack_anim;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
+	UAnimMontage* attackwave_anim;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
+	UAnimMontage* attackrange_anim;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
 	UAnimMontage* death_anim;
@@ -89,6 +115,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
 	TSubclassOf<AGetLife> pickUpife;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
+	TSubclassOf<AShootTest> shoot2;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
+	TSubclassOf<APoisonWave_Enemy> wave;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
 	UNiagaraSystem* ImpactEffectNiagara;

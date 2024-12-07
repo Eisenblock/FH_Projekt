@@ -132,14 +132,26 @@ void AEnemySpawn::SpawnEnemy(AActor* posSpawn)
             int32 RandomIndex = FMath::RandRange(1, 10);
             TSubclassOf<AEnemy> SelectedEnemyClass = EnemyClasses[0];
 
-            if (RandomIndex <= 2)
+            if (RandomIndex <= 1)
             {
                 SelectedEnemyClass = EnemyClasses[0];
             }
-            else
+            
+            if(RandomIndex <= 3 && RandomIndex >= 2)
             {
                 SelectedEnemyClass = EnemyClasses[1];
             }
+
+            if (RandomIndex <= 5 && RandomIndex >= 4)
+            {
+                SelectedEnemyClass = EnemyClasses[2];
+            }
+
+            if (RandomIndex <= 10 && RandomIndex >= 6)
+            {
+                SelectedEnemyClass = EnemyClasses[3];
+            }
+
 
 
             if (SelectedEnemyClass)
