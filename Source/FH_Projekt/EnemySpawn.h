@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "MyGameInstance.h"
+#include "Portal.h"
 #include "EnemySpawn.generated.h"
 
 // Forward Declaration der Gegnerklasse
@@ -59,6 +60,7 @@ protected:
 	void StartCountWaypoint();
 	void DelayMapChange();
 	void SetDamageArea();
+	void SpawnPortal();
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Waypoints")
@@ -106,6 +108,11 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
 	TArray<TSubclassOf<AEnemy>> EnemyClasses;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
+	TSubclassOf<APortal> portal;
+
+
 
 	// Funktion zum Starten des Spawnens
 	UFUNCTION(BlueprintCallable, Category = "Spawning")

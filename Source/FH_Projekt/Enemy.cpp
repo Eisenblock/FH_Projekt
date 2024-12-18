@@ -61,9 +61,9 @@ void AEnemy::Tick(float DeltaTime)
         GetWorld()->GetTimerManager().SetTimer(SpeedTimerHandle, this, &AEnemy::ResetSpeed, 1.0f, false);
     }
 
-    if (hit_range >= Distance && waveEnemy)
+   if (hit_range >= Distance && waveEnemy)
     {
-        GetWorld()->GetTimerManager().SetTimer(SpeedTimerHandle, this, &AEnemy::ResetSpeed, 4.0f, false);
+        GetWorld()->GetTimerManager().SetTimer(SpeedTimerHandle, this, &AEnemy::ResetSpeed, 3.0f, false);
     }
 
     if (hit_range >= Distance && bCanAttack && meeleEnemy && !can_die)
@@ -96,7 +96,7 @@ void AEnemy::Tick(float DeltaTime)
         GetWorld()->GetTimerManager().SetTimer(AttackTimerHandle, this, &AEnemy::ResetAttack, attack_speed, false);
     }
 
-    if (aggro_range >= Distance)
+    if (aggro_range >= Distance && can_Rotate)
     {
         ChasePlayer();
     }
@@ -194,6 +194,7 @@ void AEnemy::ResetSpeed()
     if (life > 0)
     {
         charMovement->MaxWalkSpeed = speed;
+        can_Rotate = true;
     }
     else
     {
@@ -287,7 +288,7 @@ void AEnemy::Attack()
            // playerCharacter->GetDmg(20);
             charMovement->MaxWalkSpeed = 0;
             GetWorld()->GetTimerManager().SetTimer(SpeedZeroTimerHandle, this, &AEnemy::ZeroSpeed, 0.3f, false);
-            //GetWorld()->GetTimerManager().SetTimer(SpeedTimerHandle, this, &AEnemy::ResetSpeed, 2.0f, false);
+            GetWorld()->GetTimerManager().SetTimer(SpeedTimerHandle, this, &AEnemy::ResetSpeed, 1.5f, false);
         }
         else
         {
@@ -389,6 +390,7 @@ void AEnemy::WaveAttack()
 {
     if (shoot2) // Überprüfen, ob eine gültige Klasse gesetzt ist
     {
+        can_Rotate = false;
         // Position und Rotation des Projektils bestimmen
         USkeletalMeshComponent* MeshComp = GetMesh();
         FVector SpawnLocation = MeshComp->GetSocketLocation("HeadSocket");
@@ -412,6 +414,7 @@ void AEnemy::WaveAttack()
         // Projektil in der Welt spawnen
         APoisonWave_Enemy* Projectile = GetWorld()->SpawnActor<APoisonWave_Enemy>(wave, SpawnLocation, SpawnRotation);
         Projectile->GetEnemyPos(this,GetMesh());
+        GetWorld()->GetTimerManager().SetTimer(SpeedZeroTimerHandle,this,&AEnemy::ResetSpeed,false);
 
         /* if (Projectile)
          {

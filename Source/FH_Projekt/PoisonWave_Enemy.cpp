@@ -18,7 +18,7 @@ APoisonWave_Enemy::APoisonWave_Enemy()
     // Create and setup Box Collider 1
     BoxCollider1 = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCollider1"));
     RootComponent = BoxCollider1;
-    BoxCollider1->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+    BoxCollider1->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     BoxCollider1->SetCollisionResponseToAllChannels(ECR_Ignore);
     BoxCollider1->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
     BoxCollider1->SetGenerateOverlapEvents(true);
@@ -54,12 +54,14 @@ void APoisonWave_Enemy::BeginPlay()
     //BoxCollider2->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     FIndPlayer();
     //GetDirection();
-    BoxCollider1->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-    BoxCollider1->OnComponentBeginOverlap.AddDynamic(this, &APoisonWave_Enemy::OnBox1Overlap);
-    wave_partikel->Activate();
+    BoxCollider2->OnComponentBeginOverlap.AddDynamic(this, &APoisonWave_Enemy::OnBox1Overlap);
     GetWorld()->GetTimerManager().SetTimer(VisibleTimer, this, &APoisonWave_Enemy::SetCollider2True, 1.0f, false);
     GetWorld()->GetTimerManager().SetTimer(CastTimerHandle, this, &APoisonWave_Enemy::DestroyObject, DamageDuration, false);
     start_pos = GetActorLocation();
+    SetActorLocation(start_pos);
+    wave_partikel->SetWorldLocation(start_pos);
+    wave_partikel->Deactivate();
+    GetWorld()->GetTimerManager().SetTimer(ColliderTimer,this, &APoisonWave_Enemy::SetCollider2True, 1.0f,false);
 }
 
 // Called every frame
@@ -67,7 +69,7 @@ void APoisonWave_Enemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
    
-    start_pos = enemyMesh->GetSocketLocation("HeadSocket");
+    //start_pos = enemyMesh->GetSocketLocation("HeadSocket");
 
     if (current_Enemy)
     {
@@ -83,15 +85,15 @@ void APoisonWave_Enemy::Tick(float DeltaTime)
 
     }
 
-    GetDirection();
+    //GetDirection();
     
 
     //start_pos = enemyMesh->GetSocketLocation("HeadSocket");
     //FVector goal_pos = Direction * 200.0f * DeltaTime;
     //start_pos += FVector(50.0f,0.0f,0.0f);
 
-    SetActorLocation(start_pos );
-    wave_partikel->SetWorldLocation(start_pos);
+   // SetActorLocation(start_pos );
+   // wave_partikel->SetWorldLocation(start_pos);
 }
 
 void APoisonWave_Enemy::OnBox1Overlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -165,7 +167,8 @@ void APoisonWave_Enemy::DestroyObject()
 
 void APoisonWave_Enemy::SetCollider2True()
 {
-    BoxCollider1->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+    BoxCollider2->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+    wave_partikel->Activate();
 }
 
 void APoisonWave_Enemy::GetEnemyPos(AEnemy* enemy, USkeletalMeshComponent* enemy_Mesh)
@@ -178,4 +181,6 @@ void APoisonWave_Enemy::FIndPlayer()
 {
     Character = Cast<AFH_ProjektCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 }
+
+
 

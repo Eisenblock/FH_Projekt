@@ -10,6 +10,7 @@
 #include "FH_ProjektCharacter.h"
 #include "MyGameInstance.h"
 #include "Ball_AIController.h"
+#include "Portal.h"
 #include "TimerManager.h"
 
 // Konstruktor: Standardwerte setzen
@@ -340,6 +341,35 @@ void AEnemySpawn::SetDamageArea()
         }, DamageArea_timer, true);
 }
 
+void AEnemySpawn::SpawnPortal()
+{
+    TArray<AActor*> portalSpawnPoint;
+    UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("PortalSpawn"), portalSpawnPoint);
+
+    // Überprüfen, ob es mindestens einen Actor im Array gibt
+    if (portalSpawnPoint.Num() > 0)
+    {
+        // Zugriff auf den ersten Actor im Array
+        AActor* actorPortal = portalSpawnPoint[0];
+
+        // Ruft die Position des Actors ab
+        FVector spawnLocation = actorPortal->GetActorLocation();
+
+        // Optional: Ruft die Rotation des Actors ab
+        FRotator spawnRotation = actorPortal->GetActorRotation();
+
+        // Beispiel: Spawnen eines Portals an der Position des Actors
+        if (portal != nullptr)
+        {
+            GetWorld()->SpawnActor<APortal>(portal, spawnLocation, spawnRotation);
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("No actors found with the 'PortalSpawn' tag."));
+    }
+}
+
 // Tick: Wird jede Frame aufgerufen
 void AEnemySpawn::Tick(float DeltaTime)
 {
@@ -362,11 +392,13 @@ void AEnemySpawn::Tick(float DeltaTime)
     // Bedingung: Map wechseln nach 10 Sekunden
     if (timer >= timer_ChangeMap && !bTriggeredChangeMap)
     {
-        if (MyGameInstance) // Sicherheit: MyGameInstance prüfen
+        SpawnPortal();
+
+       /* if (MyGameInstance) // Sicherheit: MyGameInstance prüfen
         {
             MyGameInstance->Changemap();
         }
-        bTriggeredChangeMap = true; // Verhindert Wiederholung
+        bTriggeredChangeMap = true; // Verhindert Wiederholung*/
     }
 }
 

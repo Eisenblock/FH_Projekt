@@ -55,6 +55,7 @@ void ADamageZone::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Ot
     {
         AFH_ProjektCharacter* character = Cast<AFH_ProjektCharacter>(OtherActor);
         // Schaden-Timer starten
+        character->GetDmg(DamageAmount);
         GetWorld()->GetTimerManager().SetTimer(DamageTimer, [this, character]()
             {
                 // Methode GetDmg auf dem Player-Character aufrufen

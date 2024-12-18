@@ -80,6 +80,7 @@ public:
 	FVector goal_pos;
 	bool bCanAttack = true;
 	bool can_die = false;
+	bool can_Rotate = true;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
 	bool rangeEnemy = false;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
@@ -91,6 +92,7 @@ public:
 	FTimerHandle DestroyTimerHandle;
 	FTimerHandle SpeedTimerHandle;
 	FTimerHandle SpeedZeroTimerHandle;
+
 
 	AFH_ProjektCharacter* playerCharacter;
 	UCharacterMovementComponent* charMovement;

@@ -15,7 +15,7 @@ AWeapon::AWeapon()
 
 	weaponComponent = CreateDefaultSubobject<UTP_WeaponComponent>(TEXT("WeaponComponent"));
 	weaponComponent->SetupAttachment(RootComponent);
-
+    MuzzleOffset = weaponMesh->GetSocketLocation(FName("MuzzleOffset"));
 
 }
 

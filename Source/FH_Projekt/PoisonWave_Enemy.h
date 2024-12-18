@@ -64,11 +64,13 @@ public:
     void SetCollider2True();
     void GetEnemyPos(AEnemy* enemy,USkeletalMeshComponent* enemy_Mesh);
     void FIndPlayer();
+    
 
 private:
     FTimerHandle DamageTimerHandle;
     FTimerHandle CastTimerHandle;
     FTimerHandle VisibleTimer;
+    FTimerHandle ColliderTimer;
     bool bCanDealDamage;
     float TimeSinceLastUpdate; 
     float UpdateInterval;
