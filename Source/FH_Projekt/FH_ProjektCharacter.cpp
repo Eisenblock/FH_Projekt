@@ -12,6 +12,7 @@
 #include "InputActionValue.h"
 #include "Engine/LocalPlayer.h"
 #include "MyGameInstance.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "TP_WeaponComponent.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
@@ -48,6 +49,7 @@ void AFH_ProjektCharacter::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
+	MovementComponent = GetCharacterMovement();
 	current_weapon = s_weapon;
 	m_WeaponComponent = EquipWeapon(p_weapon, FName("weaponsocket_1"));
 	s_WeaponComponent = EquipWeapon(s_weapon,FName("weaponsocket"));
@@ -95,6 +97,9 @@ void AFH_ProjektCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &AFH_ProjektCharacter::Reload);
 	PlayerInputComponent->BindAction("ChangeWeapon", IE_Pressed, this, &AFH_ProjektCharacter::ChangeWeapon);
+
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AFH_ProjektCharacter::DoSprint);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AFH_ProjektCharacter::GetNormalSpeed);
 	
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
@@ -330,6 +335,22 @@ void AFH_ProjektCharacter::ResetFeedbackDmg()
 void AFH_ProjektCharacter::Resetreload()
 {
 	breload = false;
+}
+
+void AFH_ProjektCharacter::DoSprint()
+{
+	if (MovementComponent)
+	{
+		MovementComponent->MaxWalkSpeed = 1200.0f;
+	}
+}
+
+void AFH_ProjektCharacter::GetNormalSpeed()
+{
+	if (MovementComponent)
+	{
+		MovementComponent->MaxWalkSpeed = 600.0f;
+	}
 }
 
 void AFH_ProjektCharacter::Move(const FInputActionValue& Value)

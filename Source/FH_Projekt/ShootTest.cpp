@@ -151,7 +151,7 @@ void AShootTest::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActo
         SphereCollider->SetHiddenInGame(true);
         SphereCollider2->SetHiddenInGame(false);
         UE_LOG(LogTemp, Warning, TEXT("SphereOverlapActor: Overlap with Player detected: %s"), *OtherActor->GetName());
-        GetWorld()->GetTimerManager().SetTimer(DestroyTimerHandle, this, &AShootTest::KillObject, 2.0f, false);
+        GetWorld()->GetTimerManager().SetTimer(DestroyTimerHandle, this, &AShootTest::KillObject, 0.5f, false);
     }
 }
 

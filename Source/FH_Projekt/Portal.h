@@ -28,6 +28,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Trigger Volume")
 	UBoxComponent* TriggerVolume;
 
+	UPROPERTY(EditAnywhere, Category = "Name")
+	FName nameMap;
+
 	UPROPERTY(EditAnywhere, Category = "Trigger Volume")
 	UStaticMeshComponent* mesh;
 

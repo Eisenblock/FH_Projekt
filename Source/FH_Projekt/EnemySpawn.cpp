@@ -72,6 +72,7 @@ void AEnemySpawn::StartSpawning(AEnemy* EnemyInstance)
                 AActor* SpawnLocation = WaypointsArray_North[a];
                 SpawnEnemy(SpawnLocation); // Rufe die SpawnEnemy-Funktion mit dem Standort auf
                 UE_LOG(LogTemp, Warning, TEXT("North"));
+                b = 1;
             }
             if (WaypointsArray_East.Num() > 0 && b == 1)
             {
@@ -79,6 +80,7 @@ void AEnemySpawn::StartSpawning(AEnemy* EnemyInstance)
                 AActor* SpawnLocation = WaypointsArray_East[a];
                 SpawnEnemy(SpawnLocation);
                 UE_LOG(LogTemp, Warning, TEXT("East"));
+                b = 2;
             }
             if (WaypointsArray_South.Num() > 0 && b == 2) // Sicherstellen, dass das Array Elemente enthält
             {
@@ -86,6 +88,7 @@ void AEnemySpawn::StartSpawning(AEnemy* EnemyInstance)
                 AActor* SpawnLocation = WaypointsArray_South[a];
                 SpawnEnemy(SpawnLocation); // Rufe die SpawnEnemy-Funktion mit dem Standort auf
                 UE_LOG(LogTemp, Warning, TEXT("South"));
+                b = 3;
             }
             if (WaypointsArray_West.Num() > 0 && b == 3)
             {
@@ -93,6 +96,7 @@ void AEnemySpawn::StartSpawning(AEnemy* EnemyInstance)
                 AActor* SpawnLocation = WaypointsArray_West[a];
                 SpawnEnemy(SpawnLocation);
                 UE_LOG(LogTemp, Warning, TEXT("West"));
+                b = 0;
             }
         }, SpawnInterval, true);
 
@@ -241,7 +245,7 @@ void AEnemySpawn::ColletcWayPoints()
 void AEnemySpawn::StartCountWaypoint()
 {
 
-    if (SpawnInterval >= 0.1f)
+    if (SpawnInterval >= 1.0f)
     {
         SpawnInterval -= 0.05f;
     }
@@ -393,6 +397,7 @@ void AEnemySpawn::Tick(float DeltaTime)
     if (timer >= timer_ChangeMap && !bTriggeredChangeMap)
     {
         SpawnPortal();
+        bTriggeredChangeMap = true;
 
        /* if (MyGameInstance) // Sicherheit: MyGameInstance prüfen
         {

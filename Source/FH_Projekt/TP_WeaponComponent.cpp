@@ -48,7 +48,7 @@ void UTP_WeaponComponent::Fire(AFH_ProjektCharacter* TargetCharacter)
 			FCollisionQueryParams queryParams;
 			queryParams.AddIgnoredActor(Character);
 			FHitResult onHit;
-			FVector TraceEnd = MuzzleLocation + (Character->GetControlRotation().Vector() * 5000);
+			FVector TraceEnd = MuzzleLocation + (Character->GetControlRotation().Vector() * 15000);
 
 			bool bHit = World->LineTraceSingleByChannel(onHit, MuzzleLocation, TraceEnd, ECollisionChannel::ECC_Pawn, queryParams);
 			DrawDebugLine(World, MuzzleLocation, TraceEnd, FColor::Green, false, 1.0f, 0, 1.0f);

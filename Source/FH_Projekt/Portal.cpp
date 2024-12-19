@@ -42,7 +42,7 @@ void APortal::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherA
         // Stelle sicher, dass der Spieler der kollidierende Actor ist, bevor das Level gewechselt wird
         if (OtherActor->IsA(ACharacter::StaticClass()))  // oder spezifischer: (OtherActor == GetWorld()->GetFirstPlayerController()->GetPawn())
         {
-             UGameplayStatics::OpenLevel(this, FName(TEXT("TestMap")));  
+             UGameplayStatics::OpenLevel(this, nameMap);  
         }
     }
 }

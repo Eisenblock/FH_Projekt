@@ -104,6 +104,7 @@ public:
 	UTP_WeaponComponent* CurrentWeaponComponent;
 	UTP_WeaponComponent* m_WeaponComponent;
 	UTP_WeaponComponent* s_WeaponComponent;
+	UCharacterMovementComponent* MovementComponent;
 	UMyGameInstance* MyGameInstance;
 	FTimerHandle  FeedbackDmgTimerHandle;
 	FTimerHandle  reloadTimerHandle;
@@ -123,6 +124,8 @@ public:
 	// Reset feedback_dmg
 	void ResetFeedbackDmg();
 	void Resetreload();
+	void DoSprint();
+	void GetNormalSpeed();
 
 
 protected:
