@@ -38,16 +38,26 @@ public:
 	void ResetAttack();
 	void RangeAttack();
 	void WaveAttack();
+	void ExplosionAttack();
+	void ActivColliderExplode();
+	bool CheckLineOfSide();
+	void CheckAttackType();
 	void DestroyAfterDelay();
 	void ResetSpeed();
 	void ZeroSpeed();
 	void spawnPickUpLife();
 	void TrackEnemyType();
+	void ResetLineOfSideTimer();
+	void ResetGotDmg();
+
 
 	bool GetcanDie();
 
 	void SpawnImpactEffect(FVector HitLocation, FRotator HitRotation);
 
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Enemy")
+	class USphereComponent* SphereComponent;
 
 	UFUNCTION()
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
@@ -58,6 +68,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
 	float life;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
+	float dmg;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
 	float speed;
@@ -75,27 +88,44 @@ public:
 	float hit_range;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
+	bool isWalking = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
 	TSubclassOf<AProjectile_Enemy> shoot;
 
 	FVector goal_pos;
 	bool bCanAttack = true;
 	bool can_die = false;
 	bool can_Rotate = true;
+	bool line_of_side = false;
+	bool checkLineOfSide = false;
+	bool gotDmgB;
+	FVector DirectionToPlayer;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
+	bool aniInAction = false;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
 	bool rangeEnemy = false;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
 	bool meeleEnemy = false;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
 	bool waveEnemy = false;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
+	bool explodeEnemy = false;
 
 	FTimerHandle AttackTimerHandle;
 	FTimerHandle DestroyTimerHandle;
 	FTimerHandle SpeedTimerHandle;
 	FTimerHandle SpeedZeroTimerHandle;
+	FTimerHandle ColliderTimerHandle;
+	FTimerHandle LineOFSIdeTimerHandle;
+	FTimerHandle GotDmgTimerHandle;
 
 
 	AFH_ProjektCharacter* playerCharacter;
 	UCharacterMovementComponent* charMovement;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")
+	UNiagaraSystem* ExplosionEffect;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
 	UAnimMontage* attack_anim;
@@ -111,6 +141,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
 	UAnimMontage* gotDmg_anim;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
+	UAnimMontage* dance_anim;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
 	USkeletalMeshComponent* Mesh1P;

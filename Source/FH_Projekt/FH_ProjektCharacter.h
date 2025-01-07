@@ -77,6 +77,9 @@ public:
 	FTimerHandle AttackTimerHandle;
 	bool bIsAttacking = false;
 	bool breload = false;
+	bool lvlStart = false;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
+	bool isWalking = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GamePlay")
 	bool feedback_dmg = false;
@@ -98,7 +101,7 @@ public:
 	float timer = 0.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float changeMap_timer = 60.0f;
+	float changeMap_timer = 120.0f;
 
 	
 	UTP_WeaponComponent* CurrentWeaponComponent;
@@ -108,6 +111,10 @@ public:
 	UMyGameInstance* MyGameInstance;
 	FTimerHandle  FeedbackDmgTimerHandle;
 	FTimerHandle  reloadTimerHandle;
+
+	//Bool CHange Map
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GamePlay")
+	bool textChangeMap = false;
 
 	
 
@@ -126,6 +133,11 @@ public:
 	void Resetreload();
 	void DoSprint();
 	void GetNormalSpeed();
+	void ActivateLvl();
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	bool IsWalking() const;
+
+
 
 
 protected:

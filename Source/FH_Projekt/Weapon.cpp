@@ -17,6 +17,8 @@ AWeapon::AWeapon()
 	weaponComponent->SetupAttachment(RootComponent);
     MuzzleOffset = weaponMesh->GetSocketLocation(FName("MuzzleOffset"));
 
+    NiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NiagaraComponent"));
+
 }
 
 // Called when the game starts or when spawned

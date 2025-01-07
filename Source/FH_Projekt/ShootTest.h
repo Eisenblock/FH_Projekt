@@ -28,7 +28,10 @@ protected:
 
 public:	
 	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	virtual void Tick(float DeltaTime) override; 
+    
+    UPROPERTY(EditAnywhere, Category = "Stats")
+    float speed;
 
 private:
     // Komponenten
@@ -44,8 +47,7 @@ private:
     UPROPERTY(VisibleAnywhere)
     UNiagaraComponent* explosion;
 
-    UPROPERTY(EditAnywhere, Category = "Stats")
-    float speed;
+   
 
     UPROPERTY(EditAnywhere, Category = "Stats")
     float dmg;
@@ -60,7 +62,7 @@ private:
 
     bool bHit;
 
-    float LaunchAngleDegrees = 45.0f;
+    float LaunchAngleDegrees = 80.0f;
 
     FTimerHandle SpeedZeroTimerHandle;
     FTimerHandle DestroyTimerHandle;

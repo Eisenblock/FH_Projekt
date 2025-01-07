@@ -4,13 +4,16 @@
 #include "EnemySpawn.h"
 #include "Engine/World.h"
 #include "Enemy.h"
+#include "FH_ProjektCharacter.h"
 #include "DamageZone.h"
 #include "Enemy_Controller.h"
 #include "Kismet/GameplayStatics.h"
 #include "FH_ProjektCharacter.h"
 #include "MyGameInstance.h"
+#include "Components/BoxComponent.h"
 #include "Ball_AIController.h"
 #include "Portal.h"
+#include "GameFramework/Actor.h"
 #include "TimerManager.h"
 
 // Konstruktor: Standardwerte setzen
@@ -21,6 +24,19 @@ AEnemySpawn::AEnemySpawn()
     MaxEnemies = 10; 
     CurrentEnemies = 0; 
     
+    colliderSpawn = CreateDefaultSubobject<UBoxComponent>(TEXT("ColliderSpawn"));
+
+    // Set it as the RootComponent if needed
+    RootComponent = colliderSpawn;
+
+    // Configure collision properties
+    colliderSpawn->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+    colliderSpawn->SetCollisionObjectType(ECC_WorldDynamic);
+    colliderSpawn->SetCollisionResponseToAllChannels(ECR_Overlap);
+    colliderSpawn->SetGenerateOverlapEvents(true);
+
+    // Bind the overlap event
+    //colliderSpawn->OnComponentBeginOverlap.AddDynamic(this, &AEnemySpawn::OnOverlapBegin);
   
 }
 
@@ -28,13 +44,19 @@ AEnemySpawn::AEnemySpawn()
 void AEnemySpawn::BeginPlay()
 {
     Super::BeginPlay();
+
+    colliderSpawn->Deactivate();
+
+    TArray<AActor*> allPlayer;
+    UGameplayStatics::GetAllActorsWithTag(GetWorld(),FName("Player"),allPlayer);
+    characterPlayer = Cast<AFH_ProjektCharacter>( allPlayer[0]);
     SetDamageArea();
     CurrentLevelName = GetWorld()->GetMapName();
     CurrentLevelName = FPaths::GetBaseFilename(CurrentLevelName);
     ColletcWayPoints();
     // Spawning wird bei Spielstart gestartet
-    GetWorldTimerManager().SetTimer(UpdateIndexTimerHandle, this, &AEnemySpawn::StartCountWaypoint, 15.0f, true);
-    StartSpawning(Enemy_SlowAF);
+    //GetWorldTimerManager().SetTimer(UpdateIndexTimerHandle, this, &AEnemySpawn::StartCountWaypoint, 15.0f, true);
+    //StartSpawning(Enemy_SlowAF);
     //StartEnemyGetLife(EnemyClass);
 
     UWorld* World = GetWorld();
@@ -134,9 +156,70 @@ void AEnemySpawn::SpawnEnemy(AActor* posSpawn)
         if (EnemyClasses.Num() > 0) // Ensure there are enemy classes set
         {
             // Randomly select an enemy class from the array
-            int32 RandomIndex = FMath::RandRange(1, 10);
+            //int32 RandomIndex = FMath::RandRange(1, 10);
+          
             TSubclassOf<AEnemy> SelectedEnemyClass = EnemyClasses[0];
+            UE_LOG(LogTemp, Warning, TEXT("Initial controllloop value=%d"), controllloop);
 
+            if (controllloop == 0)
+            { 
+                SelectedEnemyClass = EnemyClasses[0];
+             
+            }
+
+            if (controllloop == 1)
+            {
+                SelectedEnemyClass = EnemyClasses[0];
+                
+            }
+
+            if (controllloop == 2)
+            {
+                SelectedEnemyClass = EnemyClasses[2];
+                
+            }
+
+            if (controllloop == 3)
+            {
+                SelectedEnemyClass = EnemyClasses[1];
+                
+            }
+
+            if (controllloop == 4)
+            {
+                SelectedEnemyClass = EnemyClasses[0];
+                
+            }
+
+            if (controllloop == 5)
+            {
+                SelectedEnemyClass = EnemyClasses[3];
+                
+            }
+
+            if (controllloop == 6)
+            {
+                SelectedEnemyClass = EnemyClasses[0];
+                
+            }
+
+            if (controllloop == 7)
+            {
+                SelectedEnemyClass = EnemyClasses[2];
+                
+            }
+
+            if (controllloop == 8)
+            {
+                SelectedEnemyClass = EnemyClasses[0];
+
+            }
+           
+
+
+
+            //Old Loop
+            /*
             if (RandomIndex <= 1)
             {
                 SelectedEnemyClass = EnemyClasses[0];
@@ -155,7 +238,7 @@ void AEnemySpawn::SpawnEnemy(AActor* posSpawn)
             if (RandomIndex <= 10 && RandomIndex >= 6)
             {
                 SelectedEnemyClass = EnemyClasses[3];
-            }
+            }*/
 
 
 
@@ -167,6 +250,8 @@ void AEnemySpawn::SpawnEnemy(AActor* posSpawn)
                 // Spawn the enemy
                 Enemy_SlowAF = GetWorld()->SpawnActor<AEnemy>(SelectedEnemyClass, SpawnLocation, SpawnRotation);
                 spawnCount += 1;
+                controllloop += 1;
+                UE_LOG(LogTemp, Warning, TEXT("Initial controllloop value=%d"), controllloop);
 
                 if (Enemy_SlowAF)
                 {
@@ -187,21 +272,18 @@ void AEnemySpawn::SpawnEnemy(AActor* posSpawn)
                 {
                     UE_LOG(LogTemp, Error, TEXT("Failed to spawn Enemy!"));
                 }
+
+                if (controllloop == 9)
+                {
+                    controllloop = 0;
+                }
+
             }
-            else
-            {
-                UE_LOG(LogTemp, Error, TEXT("SelectedEnemyClass is invalid!"));
-            }
+           
         }
-        else
-        {
-            UE_LOG(LogTemp, Error, TEXT("No enemy classes set in EnemyClasses array!"));
-        }
+        
     }
-    else
-    {
-        UE_LOG(LogTemp, Warning, TEXT("Spawning conditions not met or max enemies reached!"));
-    }
+   
 }
 
 void AEnemySpawn::ColletcWayPoints()
@@ -245,7 +327,7 @@ void AEnemySpawn::ColletcWayPoints()
 void AEnemySpawn::StartCountWaypoint()
 {
 
-    if (SpawnInterval >= 1.0f)
+    if (SpawnInterval >= 2.0f)
     {
         SpawnInterval -= 0.05f;
     }
@@ -374,6 +456,30 @@ void AEnemySpawn::SpawnPortal()
     }
 }
 
+void AEnemySpawn::BlockEntrance()
+{
+    //colliderSpawn->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+    colliderSpawn->Activate();
+}
+
+bool AEnemySpawn::GetLVLisActive()
+{
+    return activatelvl;
+}
+
+void AEnemySpawn::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+    if (OtherActor && OtherActor->ActorHasTag(TEXT("Player")))
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Player overlapped with colliderSpawn!"));
+
+        GetWorldTimerManager().SetTimer(UpdateIndexTimerHandle, this, &AEnemySpawn::StartCountWaypoint, 15.0f, true);
+        StartSpawning(Enemy_SlowAF);
+    }
+}
+
+
+
 // Tick: Wird jede Frame aufgerufen
 void AEnemySpawn::Tick(float DeltaTime)
 {
@@ -381,7 +487,18 @@ void AEnemySpawn::Tick(float DeltaTime)
 
     
     
-   timer += DeltaTime;
+    timer += DeltaTime;
+
+    distance = FVector::Dist(GetActorLocation(), characterPlayer->GetActorLocation());
+    UE_LOG(LogTemp, Warning, TEXT("Distance to Player: %f"), distance);
+    if (distance <= 400.0f && !activatelvl)
+    {
+        GetWorldTimerManager().SetTimer(UpdateIndexTimerHandle, this, &AEnemySpawn::StartCountWaypoint, 15.0f, true);
+        StartSpawning(Enemy_SlowAF);
+        activatelvl = true;
+        GetWorld()->GetTimerManager().SetTimer(Block_ActivationTimer,this,  &AEnemySpawn::BlockEntrance, 5.0f,  false);
+        characterPlayer->ActivateLvl();
+    }
 
     // Bedingung: Clear Timer nach 7 Sekunden
     if (timer >= (timer_ChangeMap - 7.0f) && !bTriggeredClearTimers)

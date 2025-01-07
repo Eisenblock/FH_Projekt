@@ -69,5 +69,5 @@ EBTNodeResult::Type UBTTask_GoDirectionPlayer::ExecuteTask(UBehaviorTreeComponen
     //UE_LOG(LogTemp, Warning, TEXT("UBTTask_ChasePlayer: Task Finished Successfully"));
 
     return EBTNodeResult::Succeeded;
-	return EBTNodeResult::Type();
+	//return EBTNodeResult::Type();
 }

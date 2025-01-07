@@ -41,7 +41,7 @@ AProjectile_Enemy::AProjectile_Enemy()
 
     explosion = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Particelsystem"));
    
-    SphereCollider->OnComponentBeginOverlap.AddDynamic(this, &AProjectile_Enemy::OnComponentBeginOverlap);
+   
     
 }
 

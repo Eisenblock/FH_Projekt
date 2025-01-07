@@ -52,18 +52,23 @@ public:
 
     // Overlap Methods
     UFUNCTION()
-    void OnBox1Overlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+    void OnEndOverlap(
+        UPrimitiveComponent* OverlappedComponent,
+        AActor* OtherActor,
+        UPrimitiveComponent* OtherComp,
+        int32 OtherBodyIndex
+    );
 
     UFUNCTION()
     void OnBox2Overlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
     // Timer to stop damage
-    void StopDamage();
-    void GetDirection();
+  
+    void DoDamage();
     void DestroyObject();
     void SetCollider2True();
-    void GetEnemyPos(AEnemy* enemy,USkeletalMeshComponent* enemy_Mesh);
     void FIndPlayer();
+    void StopTimer();
     
 
 private:
@@ -71,6 +76,7 @@ private:
     FTimerHandle CastTimerHandle;
     FTimerHandle VisibleTimer;
     FTimerHandle ColliderTimer;
+
     bool bCanDealDamage;
     float TimeSinceLastUpdate; 
     float UpdateInterval;

@@ -128,9 +128,18 @@ void AFH_ProjektCharacter::Tick(float DeltaTime)
 	
 
 	timer += DeltaTime;
-	changeMap_timer -= DeltaTime;
+	
+	if (changeMap_timer <= 0)
+	{
+		textChangeMap = true;
+	}
 
+	if (lvlStart && !textChangeMap)
+	{
+		changeMap_timer -= DeltaTime;
+	}
 
+	
 	if (current_ammo == 0 && !breload)
 	{
 		Reload();
@@ -342,6 +351,7 @@ void AFH_ProjektCharacter::DoSprint()
 	if (MovementComponent)
 	{
 		MovementComponent->MaxWalkSpeed = 1200.0f;
+		isWalking = true;
 	}
 }
 
@@ -350,7 +360,18 @@ void AFH_ProjektCharacter::GetNormalSpeed()
 	if (MovementComponent)
 	{
 		MovementComponent->MaxWalkSpeed = 600.0f;
+		isWalking = false;
 	}
+}
+
+void AFH_ProjektCharacter::ActivateLvl()
+{
+	lvlStart = true;
+}
+
+bool AFH_ProjektCharacter::IsWalking() const
+{
+	return isWalking;
 }
 
 void AFH_ProjektCharacter::Move(const FInputActionValue& Value)

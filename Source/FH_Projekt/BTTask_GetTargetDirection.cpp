@@ -87,5 +87,5 @@ EBTNodeResult::Type UBTTask_GetTargetDirection::ExecuteTask(UBehaviorTreeCompone
     FinishLatentTask(aTreeComp, EBTNodeResult::Succeeded);
     return EBTNodeResult::Succeeded;
 
-    return EBTNodeResult::Type();
+    //return EBTNodeResult::Type();
 }

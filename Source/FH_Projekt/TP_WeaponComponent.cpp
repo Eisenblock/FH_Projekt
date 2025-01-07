@@ -51,11 +51,11 @@ void UTP_WeaponComponent::Fire(AFH_ProjektCharacter* TargetCharacter)
 			FVector TraceEnd = MuzzleLocation + (Character->GetControlRotation().Vector() * 15000);
 
 			bool bHit = World->LineTraceSingleByChannel(onHit, MuzzleLocation, TraceEnd, ECollisionChannel::ECC_Pawn, queryParams);
-			DrawDebugLine(World, MuzzleLocation, TraceEnd, FColor::Green, false, 1.0f, 0, 1.0f);
+			//DrawDebugLine(World, MuzzleLocation, TraceEnd, FColor::Green, false, 1.0f, 0, 1.0f);
 
 			if (NiagaraComponent)
 			{
-				//NiagaraComponent->SetWorldRotation(MuzzleRotation);
+				NiagaraComponent->SetWorldRotation(MuzzleRotation);
 				//NiagaraComponent->SetWorldLocation(MuzzleOffset);
 				//NiagaraComponent->SetWorldLocation(MuzzleLocation);
 				NiagaraComponent->Activate();

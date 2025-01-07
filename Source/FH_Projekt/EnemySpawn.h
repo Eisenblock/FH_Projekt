@@ -6,10 +6,12 @@
 #include "GameFramework/Actor.h"
 #include "MyGameInstance.h"
 #include "Portal.h"
+#include "Components/BoxComponent.h"
 #include "EnemySpawn.generated.h"
 
 // Forward Declaration der Gegnerklasse
 class AEnemy;
+class AFH_ProjektCharacter;
 
 UCLASS()
 class FH_PROJEKT_API AEnemySpawn : public AActor
@@ -28,9 +30,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
 	FTimerHandle SpawnTimerHandle;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
+	UBoxComponent* colliderSpawn;
+
 	FTimerHandle UpdateIndexTimerHandle;
 	FTimerHandle HealthChangeTimer;
 	FTimerHandle ActivationTimer;
+	FTimerHandle Block_ActivationTimer;
 
 	int32 CurrentIndex = 0;
 	int32 CurrentIndex2 = 0;
@@ -41,11 +47,14 @@ protected:
 
 	float a = 0;
 	int32 b;
+	float distance;
+	bool activatelvl = false;
+	int controllloop = 0;
 	float extralife;
 	bool changeMap = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
-	float timer_ChangeMap = 0;
+	float timer_ChangeMap ;
 
 	// Intervall für das Spawnen von Gegnern (in Sekunden)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
@@ -61,6 +70,17 @@ protected:
 	void DelayMapChange();
 	void SetDamageArea();
 	void SpawnPortal();
+	void BlockEntrance();
+	bool GetLVLisActive();
+
+	UFUNCTION()
+	void OnOverlapBegin(
+		UPrimitiveComponent* OverlappedComp,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult);
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Waypoints")
@@ -91,6 +111,7 @@ protected:
 
 
 	int32 spawnCount = 0;
+	AFH_ProjektCharacter* characterPlayer;
 	// Aktuelle Anzahl der gespawnten Gegner
 	int32 CurrentEnemies;
 	FString CurrentLevelName;

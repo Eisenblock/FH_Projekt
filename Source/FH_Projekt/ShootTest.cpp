@@ -115,8 +115,8 @@ void AShootTest::Tick(float DeltaTime)
     SetActorLocation(CurrentPosition + Movement);
 
     // Reduziere Geschwindigkeit langsam, um einen Bogen zu simulieren (optional)
-    speed = FMath::Clamp(speed - 10.0f * DeltaTime, 100.0f, 600.0f);
-    LaunchAngleDegrees = FMath::Clamp(LaunchAngleDegrees - 24.0f * DeltaTime, -60.0f, 45.0f);
+    //speed = FMath::Clamp(speed - 10.0f * DeltaTime, 100.0f, 600.0f);
+    //LaunchAngleDegrees = FMath::Clamp(LaunchAngleDegrees - 24.0f * DeltaTime, -60.0f, 45.0f);
 }
 
 void AShootTest::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

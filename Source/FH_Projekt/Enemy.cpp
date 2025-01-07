@@ -26,10 +26,17 @@ AEnemy::AEnemy()
     PrimaryActorTick.bCanEverTick = true;
     Mesh1P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh1P"));
     Tags.Add(FName("Enemy"));
-    GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::OnOverlapBegin);
+
     GetCapsuleComponent()->SetVisibility(true);
     life = 100;
     can_die = false;
+    //GetCharacterMovement()->MaxWalkSpeed = speed;
+
+    SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("ExplosionCollider"));
+    SphereComponent->InitSphereRadius(100.0f);
+    SphereComponent->SetupAttachment(Mesh1P);
+    SphereComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::OnOverlapBegin);
 }
 
 // Called when the game starts or when spawned
@@ -38,7 +45,7 @@ void AEnemy::BeginPlay()
     Super::BeginPlay();
     playerCharacter = Cast<AFH_ProjektCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
     charMovement = GetCharacterMovement();
-    
+    charMovement->MaxWalkSpeed = speed;
 }
 
 // Called every frame
@@ -46,68 +53,45 @@ void AEnemy::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
+    SphereComponent->SetWorldLocation(GetActorLocation());
     GetDistanceToPlayer();
     //ChasePlayer();
     EnemyDead();
-
+  
     FVector PlayerLocation = playerCharacter->GetActorLocation();
     FVector OtherActorLocation = GetActorLocation();
+    float Distance = FVector::Dist(PlayerLocation, OtherActorLocation);  
 
-    // Berechne die Entfernung
-    float Distance = FVector::Dist(PlayerLocation, OtherActorLocation);
+  
 
-    if (hit_range >= Distance && rangeEnemy)
+    if ((hit_range + 200.0f) > Distance && !checkLineOfSide)
     {
-        GetWorld()->GetTimerManager().SetTimer(SpeedTimerHandle, this, &AEnemy::ResetSpeed, 1.0f, false);
+        line_of_side = CheckLineOfSide();
+        checkLineOfSide = true;
+
+        GetWorld()->GetTimerManager().SetTimer(LineOFSIdeTimerHandle, this, &AEnemy::ResetLineOfSideTimer, 0.3f, false);
     }
 
-   if (hit_range >= Distance && waveEnemy)
-    {
-        GetWorld()->GetTimerManager().SetTimer(SpeedTimerHandle, this, &AEnemy::ResetSpeed, 3.0f, false);
-    }
-
-    if (hit_range >= Distance && bCanAttack && meeleEnemy && !can_die)
-    {
-        Attack();
-        bCanAttack = false;
-        
-
-        GetWorld()->GetTimerManager().SetTimer(AttackTimerHandle, this, &AEnemy::ResetAttack, attack_speed, false);
-    }
+    CheckAttackType();
 
 
-    if (hit_range >= Distance && bCanAttack && rangeEnemy && !can_die)
-    {
-        RangeAttack();
-        bCanAttack = false;
-        charMovement->MaxWalkSpeed = 0;
-
-
-        GetWorld()->GetTimerManager().SetTimer(AttackTimerHandle, this, &AEnemy::ResetAttack, attack_speed, false);
-    }
-
-
-    if (hit_range >= Distance && bCanAttack && waveEnemy && !can_die)
-    {
-        WaveAttack();
-        bCanAttack = false;
-        charMovement->MaxWalkSpeed = 0;
-
-        GetWorld()->GetTimerManager().SetTimer(AttackTimerHandle, this, &AEnemy::ResetAttack, attack_speed, false);
-    }
 
     if (aggro_range >= Distance && can_Rotate)
     {
         ChasePlayer();
     }
+
 }
 
-bool AEnemy::GetDmgEnemy(float dmg, FVector HitLocation, FVector HitNormal)
+bool AEnemy::GetDmgEnemy(float dmg_ref, FVector HitLocation, FVector HitNormal)
 {
-    life -= dmg;
+    life -= dmg_ref;
 
-    if (life > 0)
+    if (life > 0 && !aniInAction && !gotDmgB)
     {
+        gotDmgB = true;
+        GetWorld()->GetTimerManager().SetTimer(GotDmgTimerHandle,this, &AEnemy::ResetGotDmg,  3.0f, false);
+
         UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 
         if (!AnimInstance)
@@ -160,6 +144,7 @@ void AEnemy::EnemyDead()
 
             charMovement->MaxWalkSpeed = 0.0f;
             GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+            SphereComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
             AnimInstance->Montage_Play(death_anim, 1.0f);
             int32 RandomNumber = FMath::RandRange(1, 10);
             if (RandomNumber <= 2)
@@ -242,6 +227,16 @@ void AEnemy::TrackEnemyType()
 
 }
 
+void AEnemy::ResetLineOfSideTimer()
+{
+    checkLineOfSide = false;
+}
+
+void AEnemy::ResetGotDmg()
+{
+    
+}
+
 bool AEnemy::GetcanDie()
 {
     return can_die;
@@ -268,34 +263,34 @@ void AEnemy::SpawnImpactEffect(FVector HitLocation, FRotator HitRotation)
 void AEnemy::Attack()
 {
     // AFH_ProjektCharacter* playerCharacter = Cast<AFH_ProjektCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-    
 
-        UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-        UE_LOG(LogTemp, Warning, TEXT("AttackMethod"));
 
-        // Check if the AnimInstance exists
-        if (!AnimInstance)
-        {
-            UE_LOG(LogTemp, Warning, TEXT("AnimInstance ist nullptr!"));
-            return;
-        }
+    UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+    UE_LOG(LogTemp, Warning, TEXT("AttackMethod"));
 
-        // Check if the attack animation montage is assigned
+    // Check if the AnimInstance exists
+    if (!AnimInstance)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("AnimInstance ist nullptr!"));
+        return;
+    }
 
-        if (attack_anim)
-        {
-            AnimInstance->Montage_Play(attack_anim, 1.25f);
-           // playerCharacter->GetDmg(20);
-            charMovement->MaxWalkSpeed = 0;
-            GetWorld()->GetTimerManager().SetTimer(SpeedZeroTimerHandle, this, &AEnemy::ZeroSpeed, 0.3f, false);
-            GetWorld()->GetTimerManager().SetTimer(SpeedTimerHandle, this, &AEnemy::ResetSpeed, 1.5f, false);
-        }
-        else
-        {
-            UE_LOG(LogTemp, Warning, TEXT("shoot_anim ist nullptr!"));
-        }
+    // Check if the attack animation montage is assigned
 
-    
+    if (attack_anim)
+    {
+        AnimInstance->Montage_Play(attack_anim, 1.25f);
+        // playerCharacter->GetDmg(20);
+        charMovement->MaxWalkSpeed = 0;
+        GetWorld()->GetTimerManager().SetTimer(SpeedZeroTimerHandle, this, &AEnemy::ZeroSpeed, 0.3f, false);
+        GetWorld()->GetTimerManager().SetTimer(SpeedTimerHandle, this, &AEnemy::ResetSpeed, 1.5f, false);
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("shoot_anim ist nullptr!"));
+    }
+
+
 
 }
 
@@ -316,12 +311,13 @@ void AEnemy::GetDistanceToPlayer()
 
 void AEnemy::ChasePlayer()
 {
+
     FVector NewLocation = playerCharacter->GetActorLocation();
 
     FVector EnemyLocation = GetActorLocation();
 
     // Berechne die Richtung zum Spieler
-    FVector DirectionToPlayer = (NewLocation - EnemyLocation).GetSafeNormal();
+    DirectionToPlayer = (NewLocation - EnemyLocation).GetSafeNormal();
 
     // Berechne die Rotation basierend auf der Richtung
     FRotator TargetRotation = DirectionToPlayer.Rotation();
@@ -341,11 +337,14 @@ void AEnemy::ChasePlayer()
         // Debug: Zeigt an, dass MoveToLocation aufgerufen wird
         //UE_LOG(LogTemp, Warning, TEXT("AIController is moving to %s"), *NewLocation.ToString());
     }
+
+    isWalking = true;
 }
 
 void AEnemy::ResetAttack()
 {
     bCanAttack = true;
+    checkLineOfSide = false;
 }
 
 void AEnemy::RangeAttack()
@@ -373,12 +372,19 @@ void AEnemy::RangeAttack()
 
         // Projektil in der Welt spawnen
         AShootTest* Projectile = GetWorld()->SpawnActor<AShootTest>(shoot2, SpawnLocation, SpawnRotation);
-
-       /* if (Projectile)
+        float dist = FVector::Dist(GetActorLocation(), playerCharacter->GetActorLocation());
+        if(dist <= 1200.0f)
         {
-            // Optional: Zusätzliche Konfiguration des Projektils
-            Projectile->LaunchProjectile(1000.0f, 45.0f); // Stärke und Winkel
-        }*/
+            Projectile->speed = (Projectile->speed / 2);
+        }
+        
+
+
+        /* if (Projectile)
+         {
+             // Optional: Zusätzliche Konfiguration des Projektils
+             Projectile->LaunchProjectile(1000.0f, 45.0f); // Stärke und Winkel
+         }*/
     }
     else
     {
@@ -390,10 +396,13 @@ void AEnemy::WaveAttack()
 {
     if (shoot2) // Überprüfen, ob eine gültige Klasse gesetzt ist
     {
+
+        aniInAction = true;
+
         can_Rotate = false;
         // Position und Rotation des Projektils bestimmen
         USkeletalMeshComponent* MeshComp = GetMesh();
-        FVector SpawnLocation = MeshComp->GetSocketLocation("HeadSocket");
+        FVector SpawnLocation = GetActorLocation() + DirectionToPlayer * 150.0f;
         FRotator SpawnRotation = GetActorRotation();
 
         UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -413,8 +422,8 @@ void AEnemy::WaveAttack()
 
         // Projektil in der Welt spawnen
         APoisonWave_Enemy* Projectile = GetWorld()->SpawnActor<APoisonWave_Enemy>(wave, SpawnLocation, SpawnRotation);
-        Projectile->GetEnemyPos(this,GetMesh());
-        GetWorld()->GetTimerManager().SetTimer(SpeedZeroTimerHandle,this,&AEnemy::ResetSpeed,false);
+        
+        //GetWorld()->GetTimerManager().SetTimer(SpeedZeroTimerHandle,this,&AEnemy::ResetSpeed,2.0f,false);
 
         /* if (Projectile)
          {
@@ -428,12 +437,178 @@ void AEnemy::WaveAttack()
     }
 }
 
+void AEnemy::ExplosionAttack()
+{
+    aniInAction = true;
+
+    UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+
+    if (!AnimInstance)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("AnimInstance ist nullptr!"));
+        return;
+    }
+
+    if (dance_anim)
+    {
+        AnimInstance->Montage_Play(dance_anim, 1.25f);
+        // playerCharacter->GetDmg(20);
+        charMovement->MaxWalkSpeed = 0;
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("shoot_anim ist nullptr!"));
+    }
+
+    GetWorld()->GetTimerManager().SetTimer(ColliderTimerHandle, this, &AEnemy::ActivColliderExplode, 2.0f, false);
+
+}
+
+void AEnemy::ActivColliderExplode()
+{
+
+    SphereComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+
+    FVector EffectLocation = GetActorLocation();
+    FRotator EffectRotation = FRotator::ZeroRotator;
+
+    // Niagara-Effekt spawnen (falls gesetzt)
+    if (ExplosionEffect)
+    {
+        UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+            GetWorld(),
+            ExplosionEffect,
+            EffectLocation,
+            EffectRotation
+        );
+    }
+
+    life = 0.0f;
+    // GetWorld()->GetTimerManager().SetTimer(ColliderTimerHandle, this, &AEnemy::EnemyDead, 3.0f, false);
+}
+
+bool AEnemy::CheckLineOfSide()
+{
+    FVector Start = GetActorLocation();
+    //Start.Y += 50.0f;
+
+
+
+    FVector ForwardVector = GetActorForwardVector();
+    FVector End = Start + (ForwardVector * 4000.0f);
+
+
+    FHitResult HitResult;
+    FCollisionQueryParams TraceParams;
+    TraceParams.bTraceComplex = true;
+    TraceParams.AddIgnoredActor(this);
+
+
+    bool bHit = GetWorld()->LineTraceSingleByChannel(
+        HitResult,
+        Start,
+        End,
+        ECC_Visibility,
+        TraceParams
+    );
+
+
+    //DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.0f);
+
+
+    if (bHit && HitResult.GetActor())
+    {
+        UE_LOG(LogTemp, Log, TEXT("Spieler in Sichtlinie gefunden!"));
+
+        if (HitResult.GetActor()->ActorHasTag(FName("Player")))
+        {
+            UE_LOG(LogTemp, Log, TEXT("Spieler in Sichtlinie gefunden!"));
+            return true;
+        }
+    }
+
+    // Kein Spieler getroffen
+    UE_LOG(LogTemp, Log, TEXT("kein Spieler in Sichtlinie gefunden!"));
+    return false;
+}
+
+void AEnemy::CheckAttackType()
+{
+    FVector PlayerLocation = playerCharacter->GetActorLocation();
+    FVector OtherActorLocation = GetActorLocation();
+
+    float Distance = FVector::Dist(PlayerLocation, OtherActorLocation);
+
+    if (line_of_side)
+    {
+
+        if (hit_range >= Distance && rangeEnemy)
+        {
+            GetWorld()->GetTimerManager().SetTimer(SpeedTimerHandle, this, &AEnemy::ResetSpeed, 1.0f, false);
+        }
+
+        if (hit_range >= Distance && waveEnemy)
+        {
+            GetWorld()->GetTimerManager().SetTimer(SpeedTimerHandle, this, &AEnemy::ResetSpeed, 3.0f, false);
+        }
+
+        if (hit_range >= Distance && bCanAttack && meeleEnemy && !can_die)
+        {
+
+            Attack();
+            bCanAttack = false;
+            GetWorld()->GetTimerManager().SetTimer(AttackTimerHandle, this, &AEnemy::ResetAttack, attack_speed, false);
+
+
+        }
+
+
+        if (hit_range >= Distance && bCanAttack && rangeEnemy && !can_die)
+        {
+            RangeAttack();
+            bCanAttack = false;
+            charMovement->MaxWalkSpeed = 0;
+
+
+            GetWorld()->GetTimerManager().SetTimer(AttackTimerHandle, this, &AEnemy::ResetAttack, attack_speed, false);
+        }
+
+        if (hit_range >= Distance && bCanAttack && explodeEnemy && !can_die)
+        {
+            ExplosionAttack();
+            bCanAttack = false;
+            charMovement->MaxWalkSpeed = 0;
+
+
+            //GetWorld()->GetTimerManager().SetTimer(AttackTimerHandle, this, &AEnemy::ResetAttack, attack_speed, false);
+        }
+
+
+        if (hit_range >= Distance && bCanAttack && waveEnemy && !can_die)
+        {
+            WaveAttack();
+            bCanAttack = false;
+            charMovement->MaxWalkSpeed = 0;
+
+            GetWorld()->GetTimerManager().SetTimer(AttackTimerHandle, this, &AEnemy::ResetAttack, attack_speed, false);
+        }
+    }
+}
+
 
 void AEnemy::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-    if (OtherActor && OtherActor != this)
+    if (OtherActor && OtherActor != this && OtherActor->ActorHasTag(FName("Player")))
     {
-        UE_LOG(LogTemp, Log, TEXT("Overlap detected with: %s"), *OtherActor->GetName());
+        AFH_ProjektCharacter* character = Cast<AFH_ProjektCharacter>(OtherActor);
+        if (character)
+        {
+            character->GetDmg(20);
+        }
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("OtherActor konnte nicht in AFH_ProjektCharacter gecastet werden!"));
+        }
     }
 }
 
