@@ -49,13 +49,34 @@ void AFH_ProjektCharacter::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
+	CurrentLevelName = GetWorld()->GetMapName();
+	//CurrentLevelName = FPaths::GetBaseFilename(CurrentLevelName);
 	MovementComponent = GetCharacterMovement();
 	current_weapon = s_weapon;
-	m_WeaponComponent = EquipWeapon(p_weapon, FName("weaponsocket_1"));
-	s_WeaponComponent = EquipWeapon(s_weapon,FName("weaponsocket"));
+	UE_LOG(LogTemp, Warning, TEXT("Current Level Name: %s"), *CurrentLevelName);
+	if (CurrentLevelName == TEXT("UEDPIE_0_ArenaTest"))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Current Level Name: %s"), *CurrentLevelName);
+		m_WeaponComponent = EquipWeapon(p_weapon, FName("weaponsocket_1"));
+		s_WeaponComponent = EquipWeapon(s_weapon, FName("weaponsocket"));	
+		m_weaponsA->SetActorHiddenInGame(true);
+	}
 	
 
-	m_weaponsA->SetActorHiddenInGame(true);
+	if (GetWorld()->GetMapName() == TEXT("UEDPIE_0_ArenaTest1"))
+	{
+		s_WeaponComponent = EquipWeapon(s_weapon, FName("weaponsocket"));
+		m_WeaponComponent = EquipWeapon(p_weapon, FName("weaponsocket_1"));
+		s_weaponsA->SetActorHiddenInGame(true);
+	}
+	//m_WeaponComponent = EquipWeapon(p_weapon, FName("weaponsocket_1"));
+    //s_WeaponComponent = EquipWeapon(s_weapon,FName("weaponsocket"));
+	
+	
+	
+	
+
+
 
 	
 	
@@ -96,7 +117,7 @@ void AFH_ProjektCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	PlayerInputComponent->BindAction("Attack", IE_Released, this, &AFH_ProjektCharacter::StopAttack);
 
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &AFH_ProjektCharacter::Reload);
-	PlayerInputComponent->BindAction("ChangeWeapon", IE_Pressed, this, &AFH_ProjektCharacter::ChangeWeapon);
+	//PlayerInputComponent->BindAction("ChangeWeapon", IE_Pressed, this, &AFH_ProjektCharacter::ChangeWeapon);
 
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AFH_ProjektCharacter::DoSprint);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AFH_ProjektCharacter::GetNormalSpeed);

@@ -78,6 +78,7 @@ public:
 	bool bIsAttacking = false;
 	bool breload = false;
 	bool lvlStart = false;
+	FString CurrentLevelName;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
 	bool isWalking = false;
 

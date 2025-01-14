@@ -6,7 +6,7 @@
 
 namespace EnemyKeyss
 {
-    // Definiere die Zielposition für den Blackboard-Schlüssel
+    // Definiere die Zielposition fï¿½r den Blackboard-Schlï¿½ssel
     constexpr const TCHAR* const TargetLocation = TEXT("targetlocation");
     constexpr const TCHAR* const isPlayerInRange = TEXT("isPlayerInRange");
     constexpr const TCHAR* const DirectionPlayer = TEXT("DirectionPlayer");

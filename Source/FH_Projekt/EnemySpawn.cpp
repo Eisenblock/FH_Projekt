@@ -4,6 +4,7 @@
 #include "EnemySpawn.h"
 #include "Engine/World.h"
 #include "Enemy.h"
+
 #include "FH_ProjektCharacter.h"
 #include "DamageZone.h"
 #include "Enemy_Controller.h"
@@ -45,14 +46,12 @@ void AEnemySpawn::BeginPlay()
 {
     Super::BeginPlay();
 
-    colliderSpawn->Deactivate();
+    //this->SetActorEnableCollision(true);
 
     TArray<AActor*> allPlayer;
     UGameplayStatics::GetAllActorsWithTag(GetWorld(),FName("Player"),allPlayer);
     characterPlayer = Cast<AFH_ProjektCharacter>( allPlayer[0]);
     SetDamageArea();
-    CurrentLevelName = GetWorld()->GetMapName();
-    CurrentLevelName = FPaths::GetBaseFilename(CurrentLevelName);
     ColletcWayPoints();
     // Spawning wird bei Spielstart gestartet
     //GetWorldTimerManager().SetTimer(UpdateIndexTimerHandle, this, &AEnemySpawn::StartCountWaypoint, 15.0f, true);
@@ -63,6 +62,8 @@ void AEnemySpawn::BeginPlay()
     if (World)
     {
         MyGameInstance = Cast<UMyGameInstance>(World->GetGameInstance());
+        CurrentLevelName = GetWorld()->GetMapName();
+        CurrentLevelName = FPaths::GetBaseFilename(CurrentLevelName);
         if (MyGameInstance)
         {
 
@@ -458,8 +459,27 @@ void AEnemySpawn::SpawnPortal()
 
 void AEnemySpawn::BlockEntrance()
 {
-    //colliderSpawn->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
-    colliderSpawn->Activate();
+    UWorld* World = GetWorld();
+    if (World)
+    {
+        // Die aktuelle Position und Rotation des AEnemySpawn-Actors verwenden
+        FVector SpawnLocation = GetActorLocation();
+        FRotator SpawnRotation = GetActorRotation();
+        SpawnRotation.Yaw += 90.0f;
+
+        // Das AEntranceArena-Objekt spawnen
+        AEntranceArena* SpawnedArena = World->SpawnActor<AEntranceArena>(wallEntrance, SpawnLocation, SpawnRotation);
+
+        if (SpawnedArena)
+        {
+            // Optional: Weitergehende Initialisierung des spawned Arena-Objekts
+            UE_LOG(LogTemp, Warning, TEXT("AEntranceArena wurde erfolgreich an der Position gespawnt: %s"), *SpawnLocation.ToString());
+        }
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("Fehler beim Spawnen von AEntranceArena."));
+        }
+    }
 }
 
 bool AEnemySpawn::GetLVLisActive()
@@ -490,13 +510,13 @@ void AEnemySpawn::Tick(float DeltaTime)
     timer += DeltaTime;
 
     distance = FVector::Dist(GetActorLocation(), characterPlayer->GetActorLocation());
-    UE_LOG(LogTemp, Warning, TEXT("Distance to Player: %f"), distance);
+   // UE_LOG(LogTemp, Warning, TEXT("Distance to Player: %f"), distance);
     if (distance <= 400.0f && !activatelvl)
     {
         GetWorldTimerManager().SetTimer(UpdateIndexTimerHandle, this, &AEnemySpawn::StartCountWaypoint, 15.0f, true);
         StartSpawning(Enemy_SlowAF);
         activatelvl = true;
-        GetWorld()->GetTimerManager().SetTimer(Block_ActivationTimer,this,  &AEnemySpawn::BlockEntrance, 5.0f,  false);
+        //GetWorld()->GetTimerManager().SetTimer(Block_ActivationTimer,this,  &AEnemySpawn::BlockEntrance, 5.0f,  false);
         characterPlayer->ActivateLvl();
     }
 

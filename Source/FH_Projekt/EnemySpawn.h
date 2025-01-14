@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "MyGameInstance.h"
+#include "EntranceArena.h"
 #include "Portal.h"
 #include "Components/BoxComponent.h"
 #include "EnemySpawn.generated.h"
@@ -37,6 +38,7 @@ protected:
 	FTimerHandle HealthChangeTimer;
 	FTimerHandle ActivationTimer;
 	FTimerHandle Block_ActivationTimer;
+	
 
 	int32 CurrentIndex = 0;
 	int32 CurrentIndex2 = 0;
@@ -132,6 +134,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
 	TSubclassOf<APortal> portal;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
+	TSubclassOf<AEntranceArena> wallEntrance;
 
 
 
