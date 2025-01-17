@@ -53,13 +53,26 @@ void UTP_WeaponComponent::Fire(AFH_ProjektCharacter* TargetCharacter)
 			bool bHit = World->LineTraceSingleByChannel(onHit, MuzzleLocation, TraceEnd, ECollisionChannel::ECC_Pawn, queryParams);
 			//DrawDebugLine(World, MuzzleLocation, TraceEnd, FColor::Green, false, 1.0f, 0, 1.0f);
 
-			if (NiagaraComponent)
+			if (muzzle) {
+
+				FVector SpawnLocation = MuzzleLocation; // Beispiel: Position der Waffe als Spawn-Position
+				FRotator SpawnRotation = MuzzleRotation; // Rotation der Waffe wird übernommen
+				SpawnRotation.Roll += FMath::RandRange(-45.0f, 45.0f);
+				FRotator RandomRotation = FRotator(FMath::RandRange(-180.0f, 180.0f),
+					FMath::RandRange(-180.0f, 180.0f),
+					FMath::RandRange(-180.0f, 180.0f));
+
+				// Muzzle Flash spawnieren
+				GetWorld()->SpawnActor<AMuzzelFlash>(muzzle, SpawnLocation, SpawnRotation);
+			}
+
+			/*if (NiagaraComponent)
 			{
 				NiagaraComponent->SetWorldRotation(MuzzleRotation);
 				//NiagaraComponent->SetWorldLocation(MuzzleOffset);
 				//NiagaraComponent->SetWorldLocation(MuzzleLocation);
 				NiagaraComponent->Activate();
-			}
+			}*/
 
 			GetWorld()->GetTimerManager().SetTimer(
 				DeactivationTimerHandle, // Timer-Handle
@@ -143,6 +156,18 @@ void UTP_WeaponComponent::DeactivateNiagaraEffect()
 	{
 		NiagaraComponent->Deactivate();
 	}
+}
+
+FVector UTP_WeaponComponent::GetSocketPos()
+{
+	USkeletalMeshComponent* MeshComp = Character->GetMesh1P();
+	FName MuzzleSocketName;
+	FVector MuzzleLocation;
+	if (MeshComp) {
+		MuzzleSocketName = TEXT("shotLoc");
+	    MuzzleLocation = MeshComp->GetSocketLocation(MuzzleSocketName);
+	}
+	return MuzzleLocation;
 }
 
 

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "NiagaraFunctionLibrary.h"
+#include "MuzzelFlash.h"
 #include "TP_WeaponComponent.generated.h"
 
 
@@ -54,6 +55,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* FireAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Muzzle")
+	TSubclassOf<class AActor> muzzle;
+
 
 	UTP_WeaponComponent();
 
@@ -63,6 +67,7 @@ public:
 	void GetAmmo_R();
 	void ApplyKnockbackAndStun(AEnemy* HitEnemy);
 	void DeactivateNiagaraEffect();
+	FVector GetSocketPos();
 
 
 	float attackSpeed;

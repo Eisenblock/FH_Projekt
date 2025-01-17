@@ -54,7 +54,7 @@ void AFH_ProjektCharacter::BeginPlay()
 	MovementComponent = GetCharacterMovement();
 	current_weapon = s_weapon;
 	UE_LOG(LogTemp, Warning, TEXT("Current Level Name: %s"), *CurrentLevelName);
-	if (CurrentLevelName == TEXT("UEDPIE_0_ArenaTest"))
+	if (CurrentLevelName == TEXT("UEDPIE_0_ArenaTest") || CurrentLevelName == TEXT("UEDPIE_0_TestMap"))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Current Level Name: %s"), *CurrentLevelName);
 		m_WeaponComponent = EquipWeapon(p_weapon, FName("weaponsocket_1"));
