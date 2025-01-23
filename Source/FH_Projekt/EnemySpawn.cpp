@@ -148,6 +148,14 @@ void AEnemySpawn::EnemyGetLife(TSubclassOf<AEnemy> Enemy)
     }*/
 }
 
+void AEnemySpawn::ClearTimer()
+{
+    GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+    GetWorld()->GetTimerManager().ClearTimer(ActivationTimer);
+    GetWorld()->GetTimerManager().ClearTimer(SpawnTimerHandle);
+    bTriggeredClearTimers = true;
+}
+
 // SpawnEnemy: Spawnt einen Gegner an der Position des Spawners
 void AEnemySpawn::SpawnEnemy(AActor* posSpawn)
 {

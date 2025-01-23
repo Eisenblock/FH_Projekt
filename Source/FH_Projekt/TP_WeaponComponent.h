@@ -46,8 +46,10 @@ public:
 
 
 	UNiagaraComponent* NiagaraComponent;
+	AMuzzelFlash* flash;
 
 	FTimerHandle DeactivationTimerHandle;
+	FName socketNAme;
 
 
 
@@ -62,12 +64,13 @@ public:
 	UTP_WeaponComponent();
 
 	bool AttachWeapon(AFH_ProjektCharacter* TargetCharacter, FName socket);
-	void Fire(AFH_ProjektCharacter* TargetCharacter);
+	void Fire(AFH_ProjektCharacter* TargetCharacter,FName sockename);
 	void lostAmmo();
 	void GetAmmo_R();
 	void ApplyKnockbackAndStun(AEnemy* HitEnemy);
 	void DeactivateNiagaraEffect();
 	FVector GetSocketPos();
+	void SetMuzzlePos();
 
 
 	float attackSpeed;

@@ -73,11 +73,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class UUserWidget> m_cPlayerHUD;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class UUserWidget> gameOverScreen;
+
 	//Weapon Stats
 	FTimerHandle AttackTimerHandle;
 	bool bIsAttacking = false;
 	bool breload = false;
 	bool lvlStart = false;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GamePlay")
+	bool playerDead;
 	FString CurrentLevelName;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
 	bool isWalking = false;
@@ -116,6 +121,8 @@ public:
 	//Bool CHange Map
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GamePlay")
 	bool textChangeMap = false;
+	UFUNCTION(BlueprintCallable)
+	void ReloadMap();
 
 	
 

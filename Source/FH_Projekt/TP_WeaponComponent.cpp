@@ -29,7 +29,7 @@ UTP_WeaponComponent::UTP_WeaponComponent()
 }
 
 
-void UTP_WeaponComponent::Fire(AFH_ProjektCharacter* TargetCharacter)
+void UTP_WeaponComponent::Fire(AFH_ProjektCharacter* TargetCharacter,FName sockename)
 {
 	UWorld* const World = GetWorld();
 	if (World != nullptr && Character != nullptr)
@@ -38,9 +38,9 @@ void UTP_WeaponComponent::Fire(AFH_ProjektCharacter* TargetCharacter)
 		USkeletalMeshComponent* MeshComp = Character->GetMesh1P();
 		if (MeshComp != nullptr && current_ammo != 0)
 		{
-			FName MuzzleSocketName = TEXT("shotLoc");
-			FVector MuzzleLocation = MeshComp->GetSocketLocation(MuzzleSocketName);
-			FRotator MuzzleRotation = MeshComp->GetSocketRotation(MuzzleSocketName);
+			socketNAme = sockename;
+			FVector MuzzleLocation = MeshComp->GetSocketLocation(socketNAme);
+			FRotator MuzzleRotation = MeshComp->GetSocketRotation(socketNAme);
 
 
 
@@ -51,7 +51,7 @@ void UTP_WeaponComponent::Fire(AFH_ProjektCharacter* TargetCharacter)
 			FVector TraceEnd = MuzzleLocation + (Character->GetControlRotation().Vector() * 15000);
 
 			bool bHit = World->LineTraceSingleByChannel(onHit, MuzzleLocation, TraceEnd, ECollisionChannel::ECC_Pawn, queryParams);
-			//DrawDebugLine(World, MuzzleLocation, TraceEnd, FColor::Green, false, 1.0f, 0, 1.0f);
+			DrawDebugLine(World, MuzzleLocation, TraceEnd, FColor::Green, false, 1.0f, 0, 1.0f);
 
 			if (muzzle) {
 
@@ -63,7 +63,24 @@ void UTP_WeaponComponent::Fire(AFH_ProjektCharacter* TargetCharacter)
 					FMath::RandRange(-180.0f, 180.0f));
 
 				// Muzzle Flash spawnieren
-				GetWorld()->SpawnActor<AMuzzelFlash>(muzzle, SpawnLocation, SpawnRotation);
+				flash = GetWorld()->SpawnActor<AMuzzelFlash>(muzzle, SpawnLocation, SpawnRotation);
+				FTimerHandle MuzzlePosTimerHandle;
+				GetWorld()->GetTimerManager().SetTimer(
+					MuzzlePosTimerHandle,             // Timer handle
+					this,                             // Object owning the timer
+					&UTP_WeaponComponent::SetMuzzlePos, // Method to call
+					0.02,                         // Time between calls (in seconds)
+					false                             // Loop the timer
+				);
+
+				FTimerHandle MMuzzlePosTimerHandle;
+				GetWorld()->GetTimerManager().SetTimer(
+					MMuzzlePosTimerHandle,             // Timer handle
+					this,                             // Object owning the timer
+					&UTP_WeaponComponent::SetMuzzlePos, // Method to call
+					0.04,                         // Time between calls (in seconds)
+					false                             // Loop the timer
+				);
 			}
 
 			/*if (NiagaraComponent)
@@ -116,6 +133,14 @@ void UTP_WeaponComponent::Fire(AFH_ProjektCharacter* TargetCharacter)
 		}
 	}
 }
+
+void UTP_WeaponComponent::SetMuzzlePos()
+{
+	USkeletalMeshComponent* MeshComp = Character->GetMesh1P();
+	flash->SetActorLocation(MeshComp->GetSocketLocation(socketNAme));
+	UE_LOG(LogTemp, Warning, TEXT("WeaponComponent is null!"));
+}
+
 void UTP_WeaponComponent::lostAmmo()
 {
 	current_ammo -= 1;

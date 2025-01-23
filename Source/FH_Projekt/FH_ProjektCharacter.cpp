@@ -63,7 +63,7 @@ void AFH_ProjektCharacter::BeginPlay()
 	}
 	
 
-	if (GetWorld()->GetMapName() == TEXT("UEDPIE_0_ArenaTest1"))
+	if (GetWorld()->GetMapName() == TEXT("UEDPIE_0_ArenaTest1") || CurrentLevelName == TEXT("UEDPIE_0_TestMap1"))
 	{
 		s_WeaponComponent = EquipWeapon(s_weapon, FName("weaponsocket"));
 		m_WeaponComponent = EquipWeapon(p_weapon, FName("weaponsocket_1"));
@@ -84,6 +84,14 @@ void AFH_ProjektCharacter::BeginPlay()
 	{
 		//add the HUd to the viewport
 		UUserWidget* HUD = CreateWidget<UUserWidget>(Cast<APlayerController>(GetController()), m_cPlayerHUD);
+		HUD->AddToViewport(9999);
+
+	}
+
+	if (gameOverScreen != nullptr)
+	{
+		//add the HUd to the viewport
+		UUserWidget* HUD = CreateWidget<UUserWidget>(Cast<APlayerController>(GetController()), gameOverScreen);
 		HUD->AddToViewport(9999);
 
 	}
@@ -184,6 +192,45 @@ void AFH_ProjektCharacter::Tick(float DeltaTime)
 
 
 
+void AFH_ProjektCharacter::ReloadMap()
+{
+	if (UWorld* World = GetWorld())
+	{
+
+
+		FString CurrentLevelNamee = World->GetMapName();
+		CurrentLevelNamee.RemoveFromStart(World->StreamingLevelsPrefix);
+
+
+		TArray<AActor*> ActorsWithTag;
+		FName DesiredTag = FName("Spawn");
+		UGameplayStatics::GetAllActorsWithTag(World, DesiredTag, ActorsWithTag);
+
+
+		AEnemySpawn* EnemySpawnActor = nullptr;
+		if (ActorsWithTag.Num() > 0)
+		{
+			EnemySpawnActor = Cast<AEnemySpawn>(ActorsWithTag[0]);
+			if (EnemySpawnActor)
+			{
+				UE_LOG(LogTemp, Log, TEXT("Found AEnemySpawn actor with tag '%s'"), *DesiredTag.ToString());
+				EnemySpawnActor->ClearTimer();
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Actor with tag '%s' is not of type AEnemySpawn"), *DesiredTag.ToString());
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("No actors found with tag '%s'"), *DesiredTag.ToString());
+		}
+
+
+		UGameplayStatics::OpenLevel(World, TEXT("ArenaTest"));
+	}
+}
+
 void AFH_ProjektCharacter::Attack()
 {
 	
@@ -197,18 +244,22 @@ void AFH_ProjektCharacter::Attack()
 	}
 
 	// Überprüfen, ob die Animationsmontage zugewiesen ist
-	if (shoot_anim && CurrentWeaponComponent->current_ammo != 0 )
+	if (shoot_anim && CurrentWeaponComponent->current_ammo != 0 && CurrentWeaponComponent == s_WeaponComponent )
 	{
 		AnimInstance->Montage_Play(shoot_anim, 1.0f);
 		FName MuzzleSocketName = TEXT("shotLoc");
 		
 		//FVector MuzzleLocation = GetMesh1PGetSocketLocation(MuzzleSocketName);
-		CurrentWeaponComponent->Fire(this);
+		CurrentWeaponComponent->Fire(this, MuzzleSocketName);
 		
 	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("shoot_anim ist nullptr!"));
+	
+	if (shoot_anim && CurrentWeaponComponent->current_ammo != 0 && CurrentWeaponComponent == m_WeaponComponent) {
+		AnimInstance->Montage_Play(shoot_anim, 1.0f);
+		FName MuzzleSocketName = TEXT("shotLoc1");
+
+		//FVector MuzzleLocation = GetMesh1PGetSocketLocation(MuzzleSocketName);
+		CurrentWeaponComponent->Fire(this,MuzzleSocketName);
 	}
 
 	// Unabhängig von der Animation feuert die Waffe
