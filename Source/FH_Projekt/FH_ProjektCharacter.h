@@ -80,9 +80,10 @@ public:
 	FTimerHandle AttackTimerHandle;
 	bool bIsAttacking = false;
 	bool breload = false;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GamePlay")
 	bool lvlStart = false;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GamePlay")
-	bool playerDead;
+	bool playerDead = false;
 	FString CurrentLevelName;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
 	bool isWalking = false;

@@ -102,6 +102,7 @@ void AFH_ProjektCharacter::BeginPlay()
 		if (MyGameInstance)
 		{
 			life = MyGameInstance->PlayerLife;  // Lebenswert wiederherstellen
+			killscore = MyGameInstance->killscore;
 		}
 		else
 		{
@@ -321,6 +322,19 @@ void AFH_ProjektCharacter::GetDmg(float dmg)
 	{
 		UGameplayStatics::SetGamePaused(GetWorld(), true);
 
+		APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+
+		if (PlayerController)
+		{
+			// Setze den Input Mode auf Game and UI, um die Maus zu sehen und zu interagieren
+			FInputModeGameAndUI InputMode;
+			PlayerController->SetInputMode(InputMode);
+
+			// Mache die Maus sichtbar
+			PlayerController->bShowMouseCursor = true;
+		}
+		playerDead = true;
+		MyGameInstance->PlayerLife = 100.0f;
 	}
 }
 

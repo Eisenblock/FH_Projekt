@@ -336,7 +336,7 @@ void AEnemySpawn::ColletcWayPoints()
 void AEnemySpawn::StartCountWaypoint()
 {
 
-    if (SpawnInterval >= 2.0f)
+    if (SpawnInterval >= maxSpawnRate)
     {
         SpawnInterval -= 0.05f;
     }

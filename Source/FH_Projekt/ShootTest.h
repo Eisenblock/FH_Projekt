@@ -41,7 +41,7 @@ private:
     UPROPERTY(EditAnywhere)
     USphereComponent* SphereCollider2;
 
-    UPROPERTY(VisibleAnywhere)
+    UPROPERTY(EditAnywhere)
     UStaticMeshComponent* Mesh;
 
     UPROPERTY(VisibleAnywhere)

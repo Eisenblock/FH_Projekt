@@ -19,5 +19,8 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Player Stats")
 	float PlayerLife = 100;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Player Stats")
+	float killscore;
+
 	void Changemap();
 };

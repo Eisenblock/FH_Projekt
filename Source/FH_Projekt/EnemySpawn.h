@@ -55,6 +55,10 @@ protected:
 	float extralife;
 	bool changeMap = true;
 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
+	float maxSpawnRate;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
 	float timer_ChangeMap ;
 
