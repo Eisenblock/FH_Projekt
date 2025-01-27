@@ -82,7 +82,7 @@ void AEntranceArena::MoveObjectDown()
     FVector CurrentLocation = GetActorLocation();
     FVector TargetLocation = CurrentLocation - playerCharacter->GetActorLocation();
     GetWorldTimerManager().SetTimer(timeHandler, this, &AEntranceArena::MoveDownForDuration, 0.0116f, true, 0.0f);
-    GetWorldTimerManager().SetTimer(timeHandler2, this, &AEntranceArena::StopMovement, 5.0f, false);
+    GetWorldTimerManager().SetTimer(timeHandler2, this, &AEntranceArena::StopMovement, 9.0f, false);
 }
 
 void AEntranceArena::MoveDownForDuration()

@@ -51,7 +51,7 @@ void UTP_WeaponComponent::Fire(AFH_ProjektCharacter* TargetCharacter,FName socke
 			FVector TraceEnd = MuzzleLocation + (Character->GetControlRotation().Vector() * 15000);
 
 			bool bHit = World->LineTraceSingleByChannel(onHit, MuzzleLocation, TraceEnd, ECollisionChannel::ECC_Pawn, queryParams);
-			DrawDebugLine(World, MuzzleLocation, TraceEnd, FColor::Green, false, 1.0f, 0, 1.0f);
+			// DrawDebugLine(World, MuzzleLocation, TraceEnd, FColor::Green, false, 1.0f, 0, 1.0f);
 
 			if (muzzle) {
 
@@ -69,18 +69,55 @@ void UTP_WeaponComponent::Fire(AFH_ProjektCharacter* TargetCharacter,FName socke
 					MuzzlePosTimerHandle,             // Timer handle
 					this,                             // Object owning the timer
 					&UTP_WeaponComponent::SetMuzzlePos, // Method to call
+					0.01,                         // Time between calls (in seconds)
+					false                             // Loop the timer
+				);
+
+				FTimerHandle MuzzlePosTimerHandle6;
+				GetWorld()->GetTimerManager().SetTimer(
+					MuzzlePosTimerHandle6,             // Timer handle
+					this,                             // Object owning the timer
+					&UTP_WeaponComponent::SetMuzzlePos, // Method to call
 					0.02,                         // Time between calls (in seconds)
 					false                             // Loop the timer
 				);
 
-				FTimerHandle MMuzzlePosTimerHandle;
+				FTimerHandle MuzzlePosTimerHandle3;
 				GetWorld()->GetTimerManager().SetTimer(
-					MMuzzlePosTimerHandle,             // Timer handle
+					MuzzlePosTimerHandle3,             // Timer handle
+					this,                             // Object owning the timer
+					&UTP_WeaponComponent::SetMuzzlePos, // Method to call
+					0.03,                         // Time between calls (in seconds)
+					false                             // Loop the timer
+				);
+
+				FTimerHandle MMuzzlePosTimerHandle4;
+				GetWorld()->GetTimerManager().SetTimer(
+					MMuzzlePosTimerHandle4,             // Timer handle
 					this,                             // Object owning the timer
 					&UTP_WeaponComponent::SetMuzzlePos, // Method to call
 					0.04,                         // Time between calls (in seconds)
 					false                             // Loop the timer
 				);
+
+				FTimerHandle MMuzzlePosTimerHandle5;
+				GetWorld()->GetTimerManager().SetTimer(
+					MMuzzlePosTimerHandle5,             // Timer handle
+					this,                             // Object owning the timer
+					&UTP_WeaponComponent::SetMuzzlePos, // Method to call
+					0.05,                         // Time between calls (in seconds)
+					false                             // Loop the timer
+				);
+
+				FTimerHandle MMuzzlePosTimerHandle2;
+				GetWorld()->GetTimerManager().SetTimer(
+					MMuzzlePosTimerHandle2,             // Timer handle
+					this,                             // Object owning the timer
+					&UTP_WeaponComponent::SetMuzzlePos, // Method to call
+					0.06,                         // Time between calls (in seconds)
+					false                             // Loop the timer
+				);
+
 			}
 
 			/*if (NiagaraComponent)
@@ -115,6 +152,7 @@ void UTP_WeaponComponent::Fire(AFH_ProjektCharacter* TargetCharacter,FName socke
 						if (getPoint)
 						{
 							TargetCharacter->killscore += 1;
+							TargetCharacter->MyGameInstance->killscore += 1;
 						}
 					}
 				}
@@ -147,8 +185,12 @@ void UTP_WeaponComponent::lostAmmo()
 }
 void UTP_WeaponComponent::GetAmmo_R()
 {
-	UGameplayStatics::PlaySoundAtLocation(this, reload_sound, Character->GetActorLocation());
-	current_ammo = max_ammo;
+	if (Character && reload_sound) {
+		UGameplayStatics::PlaySoundAtLocation(this, reload_sound, Character->GetActorLocation());
+		current_ammo = max_ammo;
+
+	}
+	
 }
 void UTP_WeaponComponent::ApplyKnockbackAndStun(AEnemy* HitEnemy)
 {

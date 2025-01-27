@@ -46,9 +46,11 @@ public:
 	void ResetSpeed();
 	void ZeroSpeed();
 	void spawnPickUpLife();
+	void spawnPickBomb();
 	void TrackEnemyType();
 	void ResetLineOfSideTimer();
 	void ResetGotDmg();
+
 
 
 	bool GetcanDie();
@@ -87,8 +89,29 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
 	float hit_range;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy")
 	bool isWalking = false;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	USoundBase* attack_sound;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	USoundBase* attack2_sound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	USoundBase* explosiv_sound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	USoundBase* zombie_sound;
+
+	bool playZombieSound = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	USoundBase* zombieLab_sound;
+
+	bool playZombieSoundLab = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
 	TSubclassOf<AProjectile_Enemy> shoot;
@@ -99,8 +122,11 @@ public:
 	bool can_Rotate = true;
 	bool line_of_side = false;
 	bool checkLineOfSide = false;
-	bool gotDmgB;
+	bool gotDmgB = false;
+	bool gotDmgBWalk = false;
 	FVector DirectionToPlayer;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
+	bool labEnemy = false;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
 	bool aniInAction = false;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
@@ -150,6 +176,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
 	TSubclassOf<AGetLife> pickUpife;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
+	TSubclassOf<AGetLife> pickBomb;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
 	TSubclassOf<AShootTest> shoot2;

@@ -76,8 +76,9 @@ void AEnemy::Tick(float DeltaTime)
 
 
 
-    if (aggro_range >= Distance && can_Rotate)
+    if (aggro_range >= Distance && can_Rotate || gotDmgBWalk && can_Rotate)
     {
+        isWalking = true;
         ChasePlayer();
     }
 
@@ -86,6 +87,7 @@ void AEnemy::Tick(float DeltaTime)
 bool AEnemy::GetDmgEnemy(float dmg_ref, FVector HitLocation, FVector HitNormal)
 {
     life -= dmg_ref;
+    gotDmgBWalk = true;
 
     if (life > 0 && !aniInAction && !gotDmgB)
     {
@@ -146,14 +148,15 @@ void AEnemy::EnemyDead()
             GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
             SphereComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
             AnimInstance->Montage_Play(death_anim, 1.0f);
-            int32 RandomNumber = FMath::RandRange(1, 10);
-            if (RandomNumber <= 2)
+            int32 RandomNumber = FMath::RandRange(1, 30);
+            if (RandomNumber <= 3)
             {
                 spawnPickUpLife();
             }
-            else
+            
+            if (RandomNumber == 5 && labEnemy)
             {
-
+                spawnPickBomb();
             }
 
             GetWorld()->GetTimerManager().SetTimer(DestroyTimerHandle, this, &AEnemy::DestroyAfterDelay, 2.0f, false);
@@ -206,6 +209,36 @@ void AEnemy::spawnPickUpLife()
 
         // Spawn the enemy subclass
         AGetLife* SpawnedEnemy = GetWorld()->SpawnActor<AGetLife>(pickUpife, SpawnLocation, SpawnRotation, SpawnParams);
+
+        if (SpawnedEnemy)
+        {
+            UE_LOG(LogTemp, Log, TEXT("Successfully spawned enemy: %s"), *SpawnedEnemy->GetName());
+        }
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("Failed to spawn enemy!"));
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("EnemyClass is not set!"));
+    }
+}
+
+void AEnemy::spawnPickBomb()
+{
+    if (pickBomb) // Ensure the subclass is specified
+    {
+        FActorSpawnParameters SpawnParams;
+        SpawnParams.Owner = this;
+        SpawnParams.Instigator = GetInstigator();
+
+        // Set spawn location and rotation
+        FVector SpawnLocation = GetActorLocation() + FVector(0.0f, 0.0f, 0.0f); // Offset to avoid overlap
+        FRotator SpawnRotation = GetActorRotation();
+
+        // Spawn the enemy subclass
+        AGetLife* SpawnedEnemy = GetWorld()->SpawnActor<AGetLife>(pickBomb, SpawnLocation, SpawnRotation, SpawnParams);
 
         if (SpawnedEnemy)
         {
@@ -290,7 +323,10 @@ void AEnemy::Attack()
         UE_LOG(LogTemp, Warning, TEXT("shoot_anim ist nullptr!"));
     }
 
-
+    if (attack_sound != nullptr)
+    {
+        UGameplayStatics::PlaySoundAtLocation(this, attack_sound, GetActorLocation());
+    }
 
 }
 
@@ -435,6 +471,11 @@ void AEnemy::WaveAttack()
     {
         UE_LOG(LogTemp, Warning, TEXT("ShootClass is not set!"));
     }
+
+    if (attack2_sound != nullptr)
+    {
+        UGameplayStatics::PlaySoundAtLocation(this, attack2_sound, GetActorLocation());
+    }
 }
 
 void AEnemy::ExplosionAttack()
@@ -484,6 +525,10 @@ void AEnemy::ActivColliderExplode()
     }
 
     life = 0.0f;
+    if (explosiv_sound != nullptr)
+    {
+        UGameplayStatics::PlaySoundAtLocation(this, explosiv_sound, GetActorLocation());
+    }
     // GetWorld()->GetTimerManager().SetTimer(ColliderTimerHandle, this, &AEnemy::EnemyDead, 3.0f, false);
 }
 
@@ -538,6 +583,12 @@ void AEnemy::CheckAttackType()
     FVector OtherActorLocation = GetActorLocation();
 
     float Distance = FVector::Dist(PlayerLocation, OtherActorLocation);
+
+
+    if (zombie_sound && Distance <= 200.0f && !playZombieSound) {
+        UGameplayStatics::PlaySoundAtLocation(GetWorld(), zombie_sound, PlayerLocation);
+        playZombieSound = true;
+    }
 
     if (line_of_side)
     {

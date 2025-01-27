@@ -495,6 +495,7 @@ bool AEnemySpawn::GetLVLisActive()
     return activatelvl;
 }
 
+
 void AEnemySpawn::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
     if (OtherActor && OtherActor->ActorHasTag(TEXT("Player")))
@@ -536,6 +537,8 @@ void AEnemySpawn::Tick(float DeltaTime)
         GetWorld()->GetTimerManager().ClearTimer(ActivationTimer);
         GetWorld()->GetTimerManager().ClearTimer(SpawnTimerHandle);
         bTriggeredClearTimers = true; // Verhindert Wiederholung
+       // characterPlayer->lvlStart = false;
+        characterPlayer->SetPortalTrue();
     }
 
     // Bedingung: Map wechseln nach 10 Sekunden

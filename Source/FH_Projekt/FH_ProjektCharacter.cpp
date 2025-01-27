@@ -11,10 +11,13 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "Engine/LocalPlayer.h"
+#include "Components/AudioComponent.h"
+#include "Sound/SoundCue.h"
 #include "MyGameInstance.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "TP_WeaponComponent.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/SpotLightComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -26,6 +29,9 @@ AFH_ProjektCharacter::AFH_ProjektCharacter()
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
+	FVector NewCapsuleLocation = GetCapsuleComponent()->GetRelativeLocation();
+	NewCapsuleLocation.X -= 50.0f; // Verschiebe die Kapsel 50 Einheiten nach hinten
+	GetCapsuleComponent()->SetRelativeLocation(NewCapsuleLocation);
 		
 	// Create a CameraComponent	
 	FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
@@ -42,29 +48,51 @@ AFH_ProjektCharacter::AFH_ProjektCharacter()
 	//Mesh1P->SetRelativeRotation(FRotator(0.9f, -19.19f, 5.2f));
 	Mesh1P->SetRelativeLocation(FVector(-30.f, 0.f, -150.f));
 	Tags.Add(FName("Player"));
+	AudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
+	AudioComponent->bAutoActivate = false; // Don't start automatically
 	
+	WeaponLight = CreateDefaultSubobject<USpotLightComponent>(TEXT("WeaponLight"));
+	WeaponLight->SetupAttachment(Mesh1P);
+	WeaponLight->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
 }
 
 void AFH_ProjektCharacter::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
+	if (inLab) {
+		WeaponLight->SetVisibility(true);
+	}
+	else {
+		WeaponLight->SetVisibility(false);
+	}
 	CurrentLevelName = GetWorld()->GetMapName();
 	//CurrentLevelName = FPaths::GetBaseFilename(CurrentLevelName);
 	MovementComponent = GetCharacterMovement();
 	current_weapon = s_weapon;
-	UE_LOG(LogTemp, Warning, TEXT("Current Level Name: %s"), *CurrentLevelName);
-	if (CurrentLevelName == TEXT("UEDPIE_0_ArenaTest") || CurrentLevelName == TEXT("UEDPIE_0_TestMap"))
+
+	APlayerController* PlayerController2 = GetWorld()->GetFirstPlayerController();
+
+	if (PlayerController2)
 	{
+		// Setze den Input Mode zurück auf Game Only
+		FInputModeGameOnly InputMode;
+		PlayerController2->SetInputMode(InputMode);
+
+		// Verstecke die Maus
+		PlayerController2->bShowMouseCursor = false;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Current Level Name: %s"), *CurrentLevelName);
+
+	if (weaponType_Pistol) {
 		UE_LOG(LogTemp, Warning, TEXT("Current Level Name: %s"), *CurrentLevelName);
 		m_WeaponComponent = EquipWeapon(p_weapon, FName("weaponsocket_1"));
-		s_WeaponComponent = EquipWeapon(s_weapon, FName("weaponsocket"));	
+		s_WeaponComponent = EquipWeapon(s_weapon, FName("weaponsocket"));
 		m_weaponsA->SetActorHiddenInGame(true);
 	}
-	
-
-	if (GetWorld()->GetMapName() == TEXT("UEDPIE_0_ArenaTest1") || CurrentLevelName == TEXT("UEDPIE_0_TestMap1"))
-	{
+	if (weaponType_MG) {
+		UE_LOG(LogTemp, Warning, TEXT("Current Level Name: %s"), *CurrentLevelName);
 		s_WeaponComponent = EquipWeapon(s_weapon, FName("weaponsocket"));
 		m_WeaponComponent = EquipWeapon(p_weapon, FName("weaponsocket_1"));
 		s_weaponsA->SetActorHiddenInGame(true);
@@ -113,6 +141,23 @@ void AFH_ProjektCharacter::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("GetWorld() is invalid!"));
 	}
+
+	if (SoundCue && !firstMap)
+	{
+		AudioComponent->SetSound(SoundCue);
+		AudioComponent->SetVolumeMultiplier(0.7f);
+		AudioComponent->Play(); // Start playback
+		//AudioComponent->SetLooping(true);
+	}
+
+	if (SoundCue2 && firstMap)
+	{
+		AudioComponent->SetSound(SoundCue2);
+		AudioComponent->SetVolumeMultiplier(0.7f);
+		AudioComponent->Play(); // Start playback
+		//AudioComponent->SetLooping(true);
+	}
+
 }
 
 //////////////////////////////////////////////////////////////////////////// Input
@@ -152,9 +197,10 @@ void AFH_ProjektCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 
 void AFH_ProjektCharacter::Tick(float DeltaTime)
 {
-	current_ammo = CurrentWeaponComponent->current_ammo;
-	max_ammo = CurrentWeaponComponent->max_ammo;
-
+	if (CurrentWeaponComponent) {
+		current_ammo = CurrentWeaponComponent->current_ammo;
+		max_ammo = CurrentWeaponComponent->max_ammo;
+	}
 	
 
 	timer += DeltaTime;
@@ -453,6 +499,21 @@ void AFH_ProjektCharacter::GetNormalSpeed()
 void AFH_ProjektCharacter::ActivateLvl()
 {
 	lvlStart = true;
+}
+
+void AFH_ProjektCharacter::SetPortalTrue()
+{
+	lvlStart = false;
+	activePortal = true;
+	FTimerHandle ResetTimerHandle;
+
+	// Timer setzen, der nach 4 Sekunden die ResetLvl-Methode aufruft
+	GetWorld()->GetTimerManager().SetTimer(ResetTimerHandle, this, &AFH_ProjektCharacter::ResetFindPortal, 4.0f, false);
+}
+
+void AFH_ProjektCharacter::ResetFindPortal()
+{
+	activePortal = false;
 }
 
 bool AFH_ProjektCharacter::IsWalking() const

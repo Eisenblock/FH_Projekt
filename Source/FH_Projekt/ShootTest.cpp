@@ -135,6 +135,10 @@ void AShootTest::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActo
         Mesh->SetHiddenInGame(true);
         SphereCollider->SetHiddenInGame(true);
         UE_LOG(LogTemp, Warning, TEXT("SphereOverlapActor: Overlap with Player detected: %s"), *OtherActor->GetName());
+        if (explosiv_sound != nullptr)
+        {
+            UGameplayStatics::PlaySoundAtLocation(this, explosiv_sound, GetActorLocation());
+        }
         GetWorld()->GetTimerManager().SetTimer(DestroyTimerHandle, this, &AShootTest::KillObject, 3.0f, false);
     }
 
@@ -145,13 +149,18 @@ void AShootTest::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActo
             explosion->Activate();
         }
 
-        speed = 0;
+        speed = -10.0f;
         //bHit = true;
+        Mesh->SetEnableGravity(false);
         Mesh->SetHiddenInGame(true);
         SphereCollider->SetHiddenInGame(true);
         SphereCollider2->SetHiddenInGame(false);
         UE_LOG(LogTemp, Warning, TEXT("SphereOverlapActor: Overlap with Player detected: %s"), *OtherActor->GetName());
-        GetWorld()->GetTimerManager().SetTimer(DestroyTimerHandle, this, &AShootTest::KillObject, 0.5f, false);
+        if (explosiv_sound != nullptr)
+        {
+            UGameplayStatics::PlaySoundAtLocation(this, explosiv_sound, GetActorLocation());
+        }
+        GetWorld()->GetTimerManager().SetTimer(DestroyTimerHandle, this, &AShootTest::KillObject, 4.0f, false);
     }
 }
 

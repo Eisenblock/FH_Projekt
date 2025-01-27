@@ -79,6 +79,7 @@ protected:
 	void BlockEntrance();
 	bool GetLVLisActive();
 
+
 	UFUNCTION()
 	void OnOverlapBegin(
 		UPrimitiveComponent* OverlappedComp,

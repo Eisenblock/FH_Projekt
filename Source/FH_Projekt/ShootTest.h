@@ -58,6 +58,9 @@ private:
     UPROPERTY(EditAnywhere, Category = "Stats")
     float explode_time;
 
+    UPROPERTY(EditAnywhere, Category = "Sound")
+    USoundBase* explosiv_sound;
+
     FVector DirectionToPlayer;
 
     bool bHit;

@@ -7,7 +7,11 @@
 #include "Logging/LogMacros.h"
 #include "MyGameInstance.h"
 #include "TP_WeaponComponent.h"
+#include "Components/AudioComponent.h"
+#include "Sound/SoundCue.h"
+#include "Components/SpotLightComponent.h"
 #include "FH_ProjektCharacter.generated.h"
+
 
 class UInputComponent;
 class USkeletalMeshComponent;
@@ -77,11 +81,22 @@ public:
 	TSubclassOf<class UUserWidget> gameOverScreen;
 
 	//Weapon Stats
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GamePlay")
+	bool weaponType_Pistol = false;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GamePlay")
+	bool weaponType_MG = false;
 	FTimerHandle AttackTimerHandle;
 	bool bIsAttacking = false;
 	bool breload = false;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GamePlay")
 	bool lvlStart = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GamePlay")
+	bool inLab = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GamePlay")
+	bool activePortal;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GamePlay")
 	bool playerDead = false;
 	FString CurrentLevelName;
@@ -95,6 +110,9 @@ public:
 	int32 current_ammo;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GamePlay")
 	int32 max_ammo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Light")
+	USpotLightComponent* WeaponLight;
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GamePlay")
@@ -110,6 +128,19 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float changeMap_timer = 120.0f;
 
+	//AUdio
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Audio")
+	bool firstMap;
+
+	UPROPERTY(EditAnywhere, Category = "Audio")
+	USoundCue* SoundCue;
+
+	UPROPERTY(EditAnywhere, Category = "Audio")
+	USoundCue* SoundCue2;
+
+	UPROPERTY(VisibleAnywhere, Category = "Audio")
+	UAudioComponent* AudioComponent;
 	
 	UTP_WeaponComponent* CurrentWeaponComponent;
 	UTP_WeaponComponent* m_WeaponComponent;
@@ -120,7 +151,7 @@ public:
 	FTimerHandle  reloadTimerHandle;
 
 	//Bool CHange Map
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GamePlay")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GamePlay")
 	bool textChangeMap = false;
 	UFUNCTION(BlueprintCallable)
 	void ReloadMap();
@@ -143,6 +174,8 @@ public:
 	void DoSprint();
 	void GetNormalSpeed();
 	void ActivateLvl();
+	void SetPortalTrue();
+	void ResetFindPortal();
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	bool IsWalking() const;
 
