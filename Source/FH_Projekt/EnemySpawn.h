@@ -78,6 +78,8 @@ protected:
 	void SpawnPortal();
 	void BlockEntrance();
 	bool GetLVLisActive();
+	
+
 
 
 	UFUNCTION()

@@ -34,6 +34,9 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
     UBoxComponent* CollisionBox;
 
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
+    class UPointLightComponent* PointLightComponent;
+
     // Particle System for Effects
     UPROPERTY(EditAnywhere, Category = "Effects")
     UNiagaraSystem* NiagaraEffect;
@@ -68,4 +71,8 @@ public:
     void ApplyDamage(AActor* PlayerActor);
 
     void SetActorVisible();
+    void SetColllision();
+    void CleanColllision();
+    void ActivateLight();
+    void DeActiveLight();
 };

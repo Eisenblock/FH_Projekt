@@ -6,6 +6,9 @@
 #include "Components/BoxComponent.h"
 #include "GameFramework/Actor.h"
 #include "Components/StaticMeshComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraSystem.h"
+#include "NiagaraComponent.h"
 #include "Portal.generated.h"
 
 UCLASS()
@@ -33,6 +36,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Trigger Volume")
 	UStaticMeshComponent* mesh;
+
+	UPROPERTY(EditAnywhere, Category = "Effects")
+	UNiagaraComponent* NiagaraComponent;
 
 	UFUNCTION()
 	void OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor,

@@ -3,6 +3,9 @@
 #include "Portal.h"
 #include "Components/BoxComponent.h"        
 #include "GameFramework/Character.h"         
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraSystem.h"
+#include "NiagaraComponent.h"
 #include "Kismet/GameplayStatics.h"      
 
 // Sets default values
@@ -19,6 +22,9 @@ APortal::APortal()
     // StaticMesh-Komponente für das visuelle Mesh erstellen
     mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
     mesh->SetupAttachment(RootComponent);
+
+    NiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NiagaraComponent"));
+    NiagaraComponent->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -26,6 +32,7 @@ void APortal::BeginPlay()
 {
 	Super::BeginPlay();
     TriggerVolume->OnComponentBeginOverlap.AddDynamic(this, &APortal::OnOverlapBegin);
+    NiagaraComponent->Activate();
 }
 
 // Called every frame

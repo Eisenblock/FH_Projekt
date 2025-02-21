@@ -398,12 +398,22 @@ void AEnemySpawn::SetDamageArea()
                     ADamageZone* zone1 = Cast<ADamageZone>(LastActivated2);
                     if (zone)
                     {
+                        FTimerHandle collisionhandle;
+                        zone->ActivateLight();
+                        //GetWorld()->GetTimerManager().SetTimer(collisionhandle, zone, &ADamageZone::SetColllision, 5.0f, false);
+                        FTimerHandle collisionhandlee;
+                        zone1->ActivateLight();
+                        //GetWorld()->GetTimerManager().SetTimer(collisionhandlee, zone1, &ADamageZone::SetColllision, 5.0f, false);
+                        //zone->SetColllision();
+                       // zone1->SetColllision();
+                  
+                        /*
                         zone->SetActorHiddenInGame(true); // Versteckt den Actor
                         zone->SetActorEnableCollision(false);
                         zone->SetActorTickEnabled(false);
                         zone1->SetActorHiddenInGame(true); // Versteckt den Actor
                         zone1->SetActorEnableCollision(false);
-                        zone1->SetActorTickEnabled(false);
+                        zone1->SetActorTickEnabled(false);*/
                     }
                 }
 
@@ -423,12 +433,15 @@ void AEnemySpawn::SetDamageArea()
                 ADamageZone* zone22 = Cast<ADamageZone>(NextActivated2);
                 if (zone2) // Überprüfe, ob der Cast erfolgreich war
                 {
+                    zone2->CleanColllision();
+                    zone22->CleanColllision();
+                    /*
                     zone2->SetActorHiddenInGame(false); // Versteckt den Actor
                     zone2->SetActorEnableCollision(true);
                     zone2->SetActorTickEnabled(true);
                     zone22->SetActorHiddenInGame(false); // Versteckt den Actor
                     zone22->SetActorEnableCollision(true);
-                    zone22->SetActorTickEnabled(true);
+                    zone22->SetActorTickEnabled(true);*/
                 }
 
             }
@@ -494,7 +507,6 @@ bool AEnemySpawn::GetLVLisActive()
 {
     return activatelvl;
 }
-
 
 void AEnemySpawn::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {

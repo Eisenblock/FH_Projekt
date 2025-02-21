@@ -28,6 +28,9 @@ ADamageZone::ADamageZone()
     // Erstelle die Niagara-Komponente
     NiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NiagaraComponent"));
     NiagaraComponent->SetupAttachment(RootComponent);
+
+    PointLightComponent = CreateDefaultSubobject<UPointLightComponent>(TEXT("PointLight"));
+    PointLightComponent->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -93,5 +96,37 @@ void ADamageZone::ApplyDamage(AActor* PlayerActor)
 void ADamageZone::SetActorVisible()
 {
     SetActorHiddenInGame(false);
+}
+
+void ADamageZone::SetColllision()
+{
+    SetActorHiddenInGame(false); // Versteckt den Actor
+    SetActorEnableCollision(true);
+    SetActorTickEnabled(true);
+    NiagaraComponent->Activate();
+}
+
+void ADamageZone::CleanColllision()
+{
+    SetActorHiddenInGame(true); // Versteckt den Actor
+    SetActorEnableCollision(false);
+    SetActorTickEnabled(false);
+}
+
+void ADamageZone::ActivateLight()
+{
+    SetActorHiddenInGame(false);
+    SetActorEnableCollision(false);
+    SetActorTickEnabled(false);
+    NiagaraComponent->Deactivate();
+    PointLightComponent->Activate();
+    FTimerHandle timerCollision;
+    GetWorld()->GetTimerManager().SetTimer(timerCollision, this, &ADamageZone::SetColllision, 3.0f, false);
+}
+
+void ADamageZone::DeActiveLight()
+{
+    PointLightComponent->Deactivate();
+
 }
 
