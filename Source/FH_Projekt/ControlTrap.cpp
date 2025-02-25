@@ -57,9 +57,11 @@ void AControlTrap::ActivateNextTrap()
             ADamageZone* PreviousTrapZone = Cast<ADamageZone>(PreviousTrap);
             if (PreviousTrapZone)
             {
-                PreviousTrapZone->SetActorHiddenInGame(true);
+               // PreviousTrapZone->CleanColllision();
+               PreviousTrapZone->SetActorHiddenInGame(true);
                 PreviousTrapZone->SetActorEnableCollision(false);
                 PreviousTrapZone->SetActorTickEnabled(false);
+                PreviousTrapZone->NiagaraComponent->Deactivate();
                 UE_LOG(LogTemp, Warning, TEXT("Trap %s deactivated"), *PreviousTrap->GetName());
             }
         }
@@ -71,9 +73,10 @@ void AControlTrap::ActivateNextTrap()
             ADamageZone* CurrentTrapZone = Cast<ADamageZone>(CurrentTrap);
             if (CurrentTrapZone)
             {
-                CurrentTrapZone->SetActorHiddenInGame(false);
+                CurrentTrapZone->ActivateTrap();
+               /*CurrentTrapZone->SetActorHiddenInGame(false);
                 CurrentTrapZone->SetActorEnableCollision(true);
-                CurrentTrapZone->SetActorTickEnabled(true);
+                CurrentTrapZone->SetActorTickEnabled(true);*/ 
                 UE_LOG(LogTemp, Warning, TEXT("Trap %s activated"), *CurrentTrap->GetName());
             }
         }

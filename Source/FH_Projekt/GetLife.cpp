@@ -80,17 +80,44 @@ void AGetLife::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* 
 		for (AActor* EnemyActor : FoundEnemies)
 		{
 			// Sicherheitsprüfung: Überprüfen, ob der Actor tatsächlich ein AEnemy ist
-			AEnemy* Enemy = Cast<AEnemy>(EnemyActor);
-			if (Enemy)
-			{
-				// Abstand zwischen dem übergebenen Actor und dem aktuellen Gegner berechnen
-				float Distance = FVector::Dist(GetActorLocation(), Enemy->GetActorLocation());
-
 				// Wenn der Abstand kleiner oder gleich 100 ist, rufe die GetDmg-Methode auf
-				if (Distance <= 4000.0f)
+				AEnemy* Enemy = Cast<AEnemy>(EnemyActor);
+				if (Enemy)
 				{
-					Enemy->GetDmgEnemy(Enemy->life,Enemy->GetActorLocation(), Enemy->GetActorLocation()); // Übergibt die Lebenspunkte an den Gegner
-				}
+					// Abstand zwischen dem übergebenen Actor und dem aktuellen Gegner berechnen
+					float Distance = FVector::Dist(GetActorLocation(), Enemy->GetActorLocation());
+
+					// Wenn der Abstand kleiner oder gleich 100 ist, rufe die GetDmg-Methode auf
+					if (Distance <= 4000.0f)
+					{
+						Enemy->GetDmgEnemy(Enemy->life, Enemy->GetActorLocation(), Enemy->GetActorLocation()); // Übergibt die Lebenspunkte an den Gegner
+
+						// Niagara-System spawnen
+
+						if (ExplosionEffect)
+						{
+							UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+								GetWorld(),
+								ExplosionEffect,
+								Enemy->GetActorLocation(),
+								FRotator::ZeroRotator
+							);
+
+							// Sicherstellen, dass das Niagara-Component existiert
+							if (NiagaraComponent)
+							{
+								// Nach 1 Sekunde zerstören
+								FTimerHandle TimerHandle;
+								GetWorld()->GetTimerManager().SetTimer(TimerHandle, [NiagaraComponent]()
+									{
+										if (NiagaraComponent)
+										{
+											NiagaraComponent->DestroyComponent();
+										}
+									}, 1.0f, false);
+							}
+						}
+					}
 			}
 		}
 		

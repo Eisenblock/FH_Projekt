@@ -542,7 +542,7 @@ void AEnemySpawn::Tick(float DeltaTime)
     }
 
     // Bedingung: Clear Timer nach 7 Sekunden
-    if (timer >= (timer_ChangeMap - 7.0f) && !bTriggeredClearTimers)
+    if (timer >= (timer_ChangeMap - 7.0f) && !bTriggeredClearTimers || characterPlayer->player_win == true)
     {
         
         GetWorld()->GetTimerManager().ClearAllTimersForObject(this);

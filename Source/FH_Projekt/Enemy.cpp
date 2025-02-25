@@ -134,6 +134,11 @@ void AEnemy::EnemyDead()
     if (life <= 0 && can_die == false)
     {
         can_die = true;
+        if (Projectile) {
+            Projectile->SetEnemyDead();
+
+        }
+        
         UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
         if (!AnimInstance)
         {
@@ -314,8 +319,8 @@ void AEnemy::Attack()
     {
         AnimInstance->Montage_Play(attack_anim, 1.25f);
         // playerCharacter->GetDmg(20);
-        charMovement->MaxWalkSpeed = 0;
-        GetWorld()->GetTimerManager().SetTimer(SpeedZeroTimerHandle, this, &AEnemy::ZeroSpeed, 0.3f, false);
+        charMovement->MaxWalkSpeed = 300.0f;
+        //GetWorld()->GetTimerManager().SetTimer(SpeedZeroTimerHandle, this, &AEnemy::ZeroSpeed, 0.3f, false);
         GetWorld()->GetTimerManager().SetTimer(SpeedTimerHandle, this, &AEnemy::ResetSpeed, 1.5f, false);
     }
     else
@@ -368,8 +373,8 @@ void AEnemy::ChasePlayer()
     if (ABall_AIController* AIController = Cast<ABall_AIController>(GetController()))
     {
         // Beispielziel in Richtung des Spielers
-        AIController->MoveToTargetLocation(NewLocation);
-
+       // AIController->MoveToTargetLocation(NewLocation);
+        AIController->MoveToLocation(NewLocation, (hit_range - 50.0f));
         // Debug: Zeigt an, dass MoveToLocation aufgerufen wird
         //UE_LOG(LogTemp, Warning, TEXT("AIController is moving to %s"), *NewLocation.ToString());
     }
@@ -407,11 +412,11 @@ void AEnemy::RangeAttack()
         }
 
         // Projektil in der Welt spawnen
-        AShootTest* Projectile = GetWorld()->SpawnActor<AShootTest>(shoot2, SpawnLocation, SpawnRotation);
+        AShootTest* ProjectileShoot = GetWorld()->SpawnActor<AShootTest>(shoot2, SpawnLocation, SpawnRotation);
         float dist = FVector::Dist(GetActorLocation(), playerCharacter->GetActorLocation());
         if(dist <= 1200.0f)
         {
-            Projectile->speed = (Projectile->speed / 2);
+            ProjectileShoot->speed = (ProjectileShoot->speed / 2);
         }
         
 
@@ -457,7 +462,7 @@ void AEnemy::WaveAttack()
         }
 
         // Projektil in der Welt spawnen
-        APoisonWave_Enemy* Projectile = GetWorld()->SpawnActor<APoisonWave_Enemy>(wave, SpawnLocation, SpawnRotation);
+        Projectile = GetWorld()->SpawnActor<APoisonWave_Enemy>(wave, SpawnLocation, SpawnRotation);
         
         //GetWorld()->GetTimerManager().SetTimer(SpeedZeroTimerHandle,this,&AEnemy::ResetSpeed,2.0f,false);
 
@@ -507,29 +512,30 @@ void AEnemy::ExplosionAttack()
 
 void AEnemy::ActivColliderExplode()
 {
+    if (!can_die) {
+        SphereComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
-    SphereComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+        FVector EffectLocation = GetActorLocation();
+        FRotator EffectRotation = FRotator::ZeroRotator;
 
-    FVector EffectLocation = GetActorLocation();
-    FRotator EffectRotation = FRotator::ZeroRotator;
+        // Niagara-Effekt spawnen (falls gesetzt)
+        if (ExplosionEffect)
+        {
+            UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+                GetWorld(),
+                ExplosionEffect,
+                EffectLocation,
+                EffectRotation
+            );
+        }
 
-    // Niagara-Effekt spawnen (falls gesetzt)
-    if (ExplosionEffect)
-    {
-        UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-            GetWorld(),
-            ExplosionEffect,
-            EffectLocation,
-            EffectRotation
-        );
+        life = 0.0f;
+        if (explosiv_sound != nullptr)
+        {
+            UGameplayStatics::PlaySoundAtLocation(this, explosiv_sound, GetActorLocation());
+        }
+        // GetWorld()->GetTimerManager().SetTimer(ColliderTimerHandle, this, &AEnemy::EnemyDead, 3.0f, false);
     }
-
-    life = 0.0f;
-    if (explosiv_sound != nullptr)
-    {
-        UGameplayStatics::PlaySoundAtLocation(this, explosiv_sound, GetActorLocation());
-    }
-    // GetWorld()->GetTimerManager().SetTimer(ColliderTimerHandle, this, &AEnemy::EnemyDead, 3.0f, false);
 }
 
 bool AEnemy::CheckLineOfSide()

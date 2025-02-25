@@ -69,6 +69,7 @@ public:
     void SetCollider2True();
     void FIndPlayer();
     void StopTimer();
+    void SetEnemyDead();
     
 
 private:

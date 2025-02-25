@@ -79,6 +79,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class UUserWidget> gameOverScreen;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class UUserWidget> WinScreen;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
+	bool player_win = false;
 
 	//Weapon Stats
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GamePlay")
@@ -176,6 +180,9 @@ public:
 	void ActivateLvl();
 	void SetPortalTrue();
 	void ResetFindPortal();
+	void PlayerWInGame();
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void ChangeMap(FName mapName);
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	bool IsWalking() const;
 

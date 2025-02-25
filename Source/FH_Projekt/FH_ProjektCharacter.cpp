@@ -123,6 +123,14 @@ void AFH_ProjektCharacter::BeginPlay()
 		HUD->AddToViewport(9999);
 
 	}
+
+	if (WinScreen != nullptr)
+	{
+		//add the HUd to the viewport
+		UUserWidget* HUD = CreateWidget<UUserWidget>(Cast<APlayerController>(GetController()), WinScreen);
+		HUD->AddToViewport(9999);
+
+	}
 	UWorld* World = GetWorld();
 	if (World)
 	{
@@ -514,6 +522,31 @@ void AFH_ProjektCharacter::SetPortalTrue()
 void AFH_ProjektCharacter::ResetFindPortal()
 {
 	activePortal = false;
+}
+
+void AFH_ProjektCharacter::PlayerWInGame()
+{
+	UGameplayStatics::SetGamePaused(GetWorld(), true);
+	
+
+	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+
+	if (PlayerController)
+	{
+		// Setze den Input Mode auf Game and UI, um die Maus zu sehen und zu interagieren
+		FInputModeGameAndUI InputMode;
+		PlayerController->SetInputMode(InputMode);
+
+		// Mache die Maus sichtbar
+		PlayerController->bShowMouseCursor = true;
+	}
+	activePortal = false;
+	player_win = true;
+}
+
+void AFH_ProjektCharacter::ChangeMap(FName mapName)
+{
+	UGameplayStatics::OpenLevel(this, mapName);
 }
 
 bool AFH_ProjektCharacter::IsWalking() const

@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/Actor.h"
+#include "NiagaraFunctionLibrary.h"   // Zum Spawnen des Niagara-Systems
+#include "NiagaraComponent.h"         // Für das Niagara-Component
 #include "GetLife.generated.h"
 
 UCLASS()
@@ -41,6 +43,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
 	UBoxComponent* CollisionBox;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gameplay")
+	UNiagaraSystem* ExplosionEffect;
 
 	//Variable
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gameplay")

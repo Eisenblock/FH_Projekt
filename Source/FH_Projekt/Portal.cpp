@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Portal.h"
+#include "FH_ProjektCharacter.h"
 #include "Components/BoxComponent.h"        
 #include "GameFramework/Character.h"         
 #include "NiagaraFunctionLibrary.h"
@@ -44,12 +45,24 @@ void APortal::Tick(float DeltaTime)
 
 void APortal::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-    if (OtherActor && (OtherActor != this) && OtherComp)
-    {
-        // Stelle sicher, dass der Spieler der kollidierende Actor ist, bevor das Level gewechselt wird
-        if (OtherActor->IsA(ACharacter::StaticClass()))  // oder spezifischer: (OtherActor == GetWorld()->GetFirstPlayerController()->GetPawn())
+    if (portalNext) {
+        if (OtherActor && (OtherActor != this) && OtherComp)
         {
-             UGameplayStatics::OpenLevel(this, nameMap);  
+            // Stelle sicher, dass der Spieler der kollidierende Actor ist, bevor das Level gewechselt wird
+            if (OtherActor->IsA(ACharacter::StaticClass()))  // oder spezifischer: (OtherActor == GetWorld()->GetFirstPlayerController()->GetPawn())
+            {
+                UGameplayStatics::OpenLevel(this, nameMap);
+            }
+        }
+    }
+
+    if (portalWin) {
+        if (OtherActor && (OtherActor != this) && OtherComp)
+        {
+            if (OtherActor->ActorHasTag("Player")) {
+                AFH_ProjektCharacter* character = Cast<AFH_ProjektCharacter>(OtherActor);
+                character->PlayerWInGame();
+            }
         }
     }
 }

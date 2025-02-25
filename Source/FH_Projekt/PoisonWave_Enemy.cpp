@@ -70,7 +70,7 @@ void APoisonWave_Enemy::Tick(float DeltaTime)
     if (current_Enemy)
     {
     
-        enemyDead = current_Enemy->GetcanDie();
+      //  enemyDead = current_Enemy->GetcanDie();
 
     if (enemyDead)
     {
@@ -143,6 +143,12 @@ void APoisonWave_Enemy::FIndPlayer()
 void APoisonWave_Enemy::StopTimer()
 {
     GetWorld()->GetTimerManager().ClearTimer(DamageTimerHandle);
+}
+
+void APoisonWave_Enemy::SetEnemyDead()
+{
+    enemyDead = true;
+    Destroy();
 }
 
 

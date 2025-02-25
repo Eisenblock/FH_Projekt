@@ -149,6 +149,7 @@ public:
 
 	AFH_ProjektCharacter* playerCharacter;
 	UCharacterMovementComponent* charMovement;
+	APoisonWave_Enemy* Projectile;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")
 	UNiagaraSystem* ExplosionEffect;

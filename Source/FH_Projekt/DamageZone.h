@@ -75,4 +75,5 @@ public:
     void CleanColllision();
     void ActivateLight();
     void DeActiveLight();
+    void ActivateTrap();
 };

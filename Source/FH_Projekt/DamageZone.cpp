@@ -44,6 +44,7 @@ void ADamageZone::BeginPlay()
 
     CollisionBox->OnComponentBeginOverlap.AddDynamic(this, &ADamageZone::OnOverlapBegin);
     CollisionBox->OnComponentEndOverlap.AddDynamic(this, &ADamageZone::OnOverlapEnd);
+    NiagaraComponent->Deactivate();
 }
 
 // Called every frame
@@ -128,5 +129,16 @@ void ADamageZone::DeActiveLight()
 {
     PointLightComponent->Deactivate();
 
+}
+
+void ADamageZone::ActivateTrap()
+{
+    SetActorHiddenInGame(false);
+    SetActorEnableCollision(false);
+    SetActorTickEnabled(false);
+    NiagaraComponent->Deactivate();
+    PointLightComponent->Activate();
+    FTimerHandle timerCollision;
+    GetWorld()->GetTimerManager().SetTimer(timerCollision, this, &ADamageZone::SetColllision, 1.0f, false);
 }
 
