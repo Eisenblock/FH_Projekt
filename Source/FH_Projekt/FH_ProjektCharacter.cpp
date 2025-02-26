@@ -593,6 +593,8 @@ void AFH_ProjektCharacter::DeActivateESCScreen()
 
 void AFH_ProjektCharacter::ChangeMap(FName mapName)
 {
+	MyGameInstance->PlayerLife = 100.0f;
+	MyGameInstance->killscore = 0.0f;
 	UGameplayStatics::OpenLevel(this, mapName);
 }
 
@@ -610,6 +612,8 @@ void AFH_ProjektCharacter::SwitchToMainMenu()
 	{
 		AActor* FirstActor = FoundActors[0];
 		AEnemySpawn* EnemySpawnActor = Cast<AEnemySpawn>(FirstActor);
+		MyGameInstance->PlayerLife = 100.0f;
+		MyGameInstance->killscore = 0.0f;
 
 		if (EnemySpawnActor)
 		{
