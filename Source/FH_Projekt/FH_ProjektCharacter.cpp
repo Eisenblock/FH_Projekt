@@ -131,6 +131,14 @@ void AFH_ProjektCharacter::BeginPlay()
 		HUD->AddToViewport(9999);
 
 	}
+
+	if (EscScreen != nullptr)
+	{
+		//add the HUd to the viewport
+		UUserWidget* HUD = CreateWidget<UUserWidget>(Cast<APlayerController>(GetController()), EscScreen);
+		HUD->AddToViewport(9999);
+
+	}
 	UWorld* World = GetWorld();
 	if (World)
 	{
@@ -177,6 +185,8 @@ void AFH_ProjektCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	//PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &AFH_ProjektCharacter::Attack);
 	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &AFH_ProjektCharacter::StartAttack);
 	PlayerInputComponent->BindAction("Attack", IE_Released, this, &AFH_ProjektCharacter::StopAttack);
+
+	PlayerInputComponent->BindAction("EscScreen", IE_Released, this, &AFH_ProjektCharacter::ActivateESCScreen);
 
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &AFH_ProjektCharacter::Reload);
 	//PlayerInputComponent->BindAction("ChangeWeapon", IE_Pressed, this, &AFH_ProjektCharacter::ChangeWeapon);
@@ -389,6 +399,7 @@ void AFH_ProjektCharacter::GetDmg(float dmg)
 		}
 		playerDead = true;
 		MyGameInstance->PlayerLife = 100.0f;
+		MyGameInstance->killscore = 0.0f;
 	}
 }
 
@@ -544,6 +555,42 @@ void AFH_ProjektCharacter::PlayerWInGame()
 	player_win = true;
 }
 
+void AFH_ProjektCharacter::ActivateESCScreen()
+{
+	UGameplayStatics::SetGamePaused(GetWorld(), true);
+
+
+	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+
+	if (PlayerController)
+	{
+		// Setze den Input Mode auf Game and UI, um die Maus zu sehen und zu interagieren
+		FInputModeGameAndUI InputMode;
+		PlayerController->SetInputMode(InputMode);
+
+		// Mache die Maus sichtbar
+		PlayerController->bShowMouseCursor = true;
+	}
+	escB = true;
+}
+
+void AFH_ProjektCharacter::DeActivateESCScreen()
+{
+
+	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+	if (PlayerController)
+	{
+		// Setze den Input Mode auf Game and UI, um die Maus zu sehen und zu interagieren
+		FInputModeGameOnly InputMode;
+		PlayerController->SetInputMode(InputMode);
+
+		// Mache die Maus sichtbar
+		PlayerController->bShowMouseCursor = false;
+	}
+	escB = false;
+	UGameplayStatics::SetGamePaused(GetWorld(), false);
+}
+
 void AFH_ProjektCharacter::ChangeMap(FName mapName)
 {
 	UGameplayStatics::OpenLevel(this, mapName);
@@ -552,6 +599,31 @@ void AFH_ProjektCharacter::ChangeMap(FName mapName)
 bool AFH_ProjektCharacter::IsWalking() const
 {
 	return isWalking;
+}
+
+void AFH_ProjektCharacter::SwitchToMainMenu()
+{
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("Spawn"), FoundActors);
+
+	if (FoundActors.Num() > 0)
+	{
+		AActor* FirstActor = FoundActors[0];
+		AEnemySpawn* EnemySpawnActor = Cast<AEnemySpawn>(FirstActor);
+
+		if (EnemySpawnActor)
+		{
+			EnemySpawnActor->ClearTimer();
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("Gefundener Actor konnte nicht in AEnemySpawn gecastet werden!"));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Kein Actor mit dem Tag 'Player' gefunden!"));
+	}
 }
 
 void AFH_ProjektCharacter::Move(const FInputActionValue& Value)

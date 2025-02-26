@@ -106,7 +106,7 @@ bool AEnemy::GetDmgEnemy(float dmg_ref, FVector HitLocation, FVector HitNormal)
         {
             speed = charMovement->MaxWalkSpeed;
             charMovement->MaxWalkSpeed = 0.0f;
-            GetWorld()->GetTimerManager().SetTimer(SpeedTimerHandle, this, &AEnemy::ResetSpeed, 1.0f, false);
+            GetWorld()->GetTimerManager().SetTimer(SpeedTimerHandle, this, &AEnemy::ResetSpeed, gotDmg_anim->GetPlayLength(), false);
             AnimInstance->Montage_Play(gotDmg_anim, 0.7f);
         }
         else

@@ -37,6 +37,8 @@ public:
 	FTimerHandle timeHandler2;
 	AFH_ProjektCharacter* playerCharacter;
 	bool movementStart = false;
+	bool entranceTriggered = false;
+	float deltatimeH = 0.0f;
 
 	// Function to handle overlap events
 	UFUNCTION()
@@ -53,4 +55,5 @@ public:
 
 	void StopMovement();
 
+	void MovementTick();
 };

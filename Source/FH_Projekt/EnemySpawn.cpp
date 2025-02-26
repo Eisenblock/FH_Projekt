@@ -160,7 +160,7 @@ void AEnemySpawn::ClearTimer()
 void AEnemySpawn::SpawnEnemy(AActor* posSpawn)
 {
 
-    if (CurrentLevelName != "Testmap" )
+    if (CurrentLevelName != "Testmap" && !bTriggeredClearTimers )
     {
         if (EnemyClasses.Num() > 0) // Ensure there are enemy classes set
         {
@@ -251,13 +251,16 @@ void AEnemySpawn::SpawnEnemy(AActor* posSpawn)
 
 
 
-            if (SelectedEnemyClass)
+            if (SelectedEnemyClass && !bTriggeredClearTimers)
             {
                 FVector SpawnLocation = posSpawn->GetActorLocation();
                 FRotator SpawnRotation = posSpawn->GetActorRotation();
 
                 // Spawn the enemy
-                Enemy_SlowAF = GetWorld()->SpawnActor<AEnemy>(SelectedEnemyClass, SpawnLocation, SpawnRotation);
+                if (!bTriggeredClearTimers) { 
+                    Enemy_SlowAF = GetWorld()->SpawnActor<AEnemy>(SelectedEnemyClass, SpawnLocation, SpawnRotation);
+                }
+             
                 spawnCount += 1;
                 controllloop += 1;
                 UE_LOG(LogTemp, Warning, TEXT("Initial controllloop value=%d"), controllloop);
@@ -267,7 +270,7 @@ void AEnemySpawn::SpawnEnemy(AActor* posSpawn)
                     // Set the AIController for the enemy
                     ABall_AIController* AIController = Cast<ABall_AIController>(Enemy_SlowAF->GetController());
 
-                    if (!AIController)
+                    if (!AIController && !bTriggeredClearTimers)
                     {
                         UE_LOG(LogTemp, Warning, TEXT("AIController was not automatically assigned, assigning manually."));
                         AIController = GetWorld()->SpawnActor<ABall_AIController>(ABall_AIController::StaticClass(), SpawnLocation, SpawnRotation);
@@ -380,7 +383,7 @@ void AEnemySpawn::SetDamageArea()
     // Timer starten, um alle 15 Sekunden den nächsten Actor zu aktivieren
     GetWorld()->GetTimerManager().SetTimer(ActivationTimer, [this, DamageAreas]()
         {
-            if (CurrentLevelName != "Testmap")
+            if (CurrentLevelName != "Testmap" && !bTriggeredClearTimers)
             {
 
                 if (DamageAreas.Num() == 0)
@@ -390,7 +393,7 @@ void AEnemySpawn::SetDamageArea()
                     return; // Keine weitere Ausführung
                 }
 
-                if (DamageAreas.IsValidIndex(CurrentIndex))
+                if (DamageAreas.IsValidIndex(CurrentIndex) && !bTriggeredClearTimers)
                 {
                     AActor* LastActivated = DamageAreas[CurrentIndex];
                     AActor* LastActivated2 = DamageAreas[CurrentIndex2];
@@ -427,23 +430,24 @@ void AEnemySpawn::SetDamageArea()
                     CurrentIndex2 = FMath::RandRange(0, DamageAreas.Num() - 1);
                 }
 
-                AActor* NextActivated = DamageAreas[CurrentIndex];
-                AActor* NextActivated2 = DamageAreas[CurrentIndex2];
-                ADamageZone* zone2 = Cast<ADamageZone>(NextActivated);
-                ADamageZone* zone22 = Cast<ADamageZone>(NextActivated2);
-                if (zone2) // Überprüfe, ob der Cast erfolgreich war
-                {
-                    zone2->CleanColllision();
-                    zone22->CleanColllision();
-                    /*
-                    zone2->SetActorHiddenInGame(false); // Versteckt den Actor
-                    zone2->SetActorEnableCollision(true);
-                    zone2->SetActorTickEnabled(true);
-                    zone22->SetActorHiddenInGame(false); // Versteckt den Actor
-                    zone22->SetActorEnableCollision(true);
-                    zone22->SetActorTickEnabled(true);*/
-                }
-
+                if (!bTriggeredClearTimers) {
+                    AActor* NextActivated = DamageAreas[CurrentIndex];
+                    AActor* NextActivated2 = DamageAreas[CurrentIndex2];
+                    ADamageZone* zone2 = Cast<ADamageZone>(NextActivated);
+                    ADamageZone* zone22 = Cast<ADamageZone>(NextActivated2);
+                    if (zone2) // Überprüfe, ob der Cast erfolgreich war
+                    {
+                        zone2->CleanColllision();
+                        zone22->CleanColllision();
+                        /*
+                        zone2->SetActorHiddenInGame(false); // Versteckt den Actor
+                        zone2->SetActorEnableCollision(true);
+                        zone2->SetActorTickEnabled(true);
+                        zone22->SetActorHiddenInGame(false); // Versteckt den Actor
+                        zone22->SetActorEnableCollision(true);
+                        zone22->SetActorTickEnabled(true);*/
+                    }
+               }  
             }
 
         }, DamageArea_timer, true);
@@ -532,7 +536,7 @@ void AEnemySpawn::Tick(float DeltaTime)
 
     distance = FVector::Dist(GetActorLocation(), characterPlayer->GetActorLocation());
    // UE_LOG(LogTemp, Warning, TEXT("Distance to Player: %f"), distance);
-    if (distance <= 400.0f && !activatelvl)
+    if (distance <= 600.0f && !activatelvl)
     {
         GetWorldTimerManager().SetTimer(UpdateIndexTimerHandle, this, &AEnemySpawn::StartCountWaypoint, 15.0f, true);
         StartSpawning(Enemy_SlowAF);
@@ -548,6 +552,22 @@ void AEnemySpawn::Tick(float DeltaTime)
         GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
         GetWorld()->GetTimerManager().ClearTimer(ActivationTimer);
         GetWorld()->GetTimerManager().ClearTimer(SpawnTimerHandle);
+
+        TArray<AActor*> DamageAreas;
+
+        // Finde alle Actors mit dem Tag "DamageArea"
+        UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("DamageArea"), DamageAreas);
+        UE_LOG(LogTemp, Log, TEXT("Anzahl der Area-Akteure gefunden West: %d"), DamageAreas.Num());
+
+        for (AActor* DamageArea : DamageAreas)
+        {
+            if (DamageArea)
+            {
+                DamageArea->SetActorHiddenInGame(true);
+                DamageArea->SetActorEnableCollision(false);
+                DamageArea->SetActorTickEnabled(false);
+            }
+        }
         bTriggeredClearTimers = true; // Verhindert Wiederholung
        // characterPlayer->lvlStart = false;
         characterPlayer->SetPortalTrue();

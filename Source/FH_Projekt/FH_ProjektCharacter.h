@@ -83,6 +83,11 @@ public:
 	TSubclassOf<class UUserWidget> WinScreen;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	bool player_win = false;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class UUserWidget> EscScreen;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
+	bool escB = false;
+
 
 	//Weapon Stats
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GamePlay")
@@ -181,10 +186,15 @@ public:
 	void SetPortalTrue();
 	void ResetFindPortal();
 	void PlayerWInGame();
+	void ActivateESCScreen();
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void DeActivateESCScreen();
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void ChangeMap(FName mapName);
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	bool IsWalking() const;
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void SwitchToMainMenu();
 
 
 

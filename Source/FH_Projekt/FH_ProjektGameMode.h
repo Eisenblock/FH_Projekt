@@ -12,7 +12,16 @@ class AFH_ProjektGameMode : public AGameModeBase
 	GENERATED_BODY()
 
 public:
+
+
+	virtual void BeginPlay() override;
+
+
 	AFH_ProjektGameMode();
+
+	void LoadLevelAsync(FName LevelName);
+
+	void OnLevelLoadComplete();
 };
 
 

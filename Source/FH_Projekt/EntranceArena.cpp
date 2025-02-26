@@ -42,15 +42,20 @@ void AEntranceArena::BeginPlay()
 void AEntranceArena::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+    deltatimeH = DeltaTime;
     float Distance = FVector::Dist(GetActorLocation(), playerCharacter->GetActorLocation());
     UE_LOG(LogTemp, Warning, TEXT("Distance to Player: %f"), Distance);
 
-    if (Distance < 1500.0f && movementStart == false)
+    if (Distance < 1500.0f && movementStart == false && !entranceTriggered)
     {
         UE_LOG(LogTemp, Warning, TEXT("Ziel erreicht!"));
         movementStart = true;
+        entranceTriggered = true;
         MoveObjectDown();
+    }
+
+    if (movementStart) {
+        MovementTick();
     }
 } 
 
@@ -79,20 +84,21 @@ void AEntranceArena::ChangeCollisionToBlockAll()
 
 void AEntranceArena::MoveObjectDown()
 {
+    /*
     FVector CurrentLocation = GetActorLocation();
     FVector TargetLocation = CurrentLocation - playerCharacter->GetActorLocation();
-    GetWorldTimerManager().SetTimer(timeHandler, this, &AEntranceArena::MoveDownForDuration, 0.0116f, true, 0.0f);
-    GetWorldTimerManager().SetTimer(timeHandler2, this, &AEntranceArena::StopMovement, 9.0f, false);
+    GetWorldTimerManager().SetTimer(timeHandler, this, &AEntranceArena::MoveDownForDuration, 0.2f, true, 0.0f);*/
+    GetWorldTimerManager().SetTimer(timeHandler2, this, &AEntranceArena::StopMovement, 7.0f, false);
 }
 
 void AEntranceArena::MoveDownForDuration()
 {
+    float Speed = 200.0f; // Geschwindigkeit pro Sekunde
     FVector CurrentLocation = GetActorLocation();
-    FVector TargetLocation = CurrentLocation - FVector(0.0f, 0.0f, 100.0f);
-    FVector NewLocation = FMath::VInterpTo(CurrentLocation, TargetLocation, GetWorld()->GetDeltaSeconds(), 0.75f);
+    FVector NewLocation = CurrentLocation - FVector(0.0f, 0.0f, Speed * deltatimeH);
     SetActorLocation(NewLocation);
 
-    if (FVector::Dist(CurrentLocation, TargetLocation) < 1.0f)
+    if (FVector::Dist(CurrentLocation, NewLocation) < 1.0f)
     {
         GetWorldTimerManager().ClearTimer(timeHandler);
     }
@@ -100,6 +106,20 @@ void AEntranceArena::MoveDownForDuration()
 
 void AEntranceArena::StopMovement()
 {
+    movementStart = false;
     GetWorldTimerManager().ClearTimer(timeHandler);
+}
+
+void AEntranceArena::MovementTick()
+{
+    float Speed = 200.0f; // Geschwindigkeit pro Sekunde
+    FVector CurrentLocation = GetActorLocation();
+    FVector NewLocation = CurrentLocation - FVector(0.0f, 0.0f, Speed * deltatimeH);
+    SetActorLocation(NewLocation);
+
+    if (FVector::Dist(CurrentLocation, NewLocation) < 1.0f)
+    {
+        GetWorldTimerManager().ClearTimer(timeHandler);
+    }
 }
 

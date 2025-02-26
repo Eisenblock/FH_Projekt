@@ -40,6 +40,7 @@ void UTP_WeaponComponent::Fire(AFH_ProjektCharacter* TargetCharacter,FName socke
 		{
 			socketNAme = sockename;
 			FVector MuzzleLocation = MeshComp->GetSocketLocation(socketNAme);
+			FVector otherLocation = MeshComp->GetSocketLocation(FName("rootSocket"));
 			FRotator MuzzleRotation = MeshComp->GetSocketRotation(socketNAme);
 
 
@@ -50,8 +51,8 @@ void UTP_WeaponComponent::Fire(AFH_ProjektCharacter* TargetCharacter,FName socke
 			FHitResult onHit;
 			FVector TraceEnd = MuzzleLocation + (Character->GetControlRotation().Vector() * 15000);
 
-			bool bHit = World->LineTraceSingleByChannel(onHit, MuzzleLocation, TraceEnd, ECollisionChannel::ECC_Pawn, queryParams);
-			// DrawDebugLine(World, MuzzleLocation, TraceEnd, FColor::Green, false, 1.0f, 0, 1.0f);
+			bool bHit = World->LineTraceSingleByChannel(onHit,otherLocation, TraceEnd, ECollisionChannel::ECC_Pawn, queryParams);
+			DrawDebugLine(World, otherLocation, TraceEnd, FColor::Green, false, 1.0f, 0, 1.0f);
 
 			if (muzzle) {
 

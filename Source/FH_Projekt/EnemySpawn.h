@@ -153,6 +153,8 @@ public:
 
 	void StartEnemyGetLife(TSubclassOf<AEnemy> Enemy);
 	void EnemyGetLife(TSubclassOf<AEnemy> Enemy);
+	UFUNCTION(BlueprintCallable, Category = "Spawning")
 	void ClearTimer();
+	
 };
 
