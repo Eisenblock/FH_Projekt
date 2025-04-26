@@ -16,4 +16,4 @@ Herausforderndes Labyrinth
 Stylized Grafiken mit UE5
 
 ## 🎬 Gameplay Video
-https://youtube.com/shorts/mUNUtqgRVLk
+[https://youtube.com/shorts/mUNUtqgRVLk](https://youtu.be/QbNVqHX9IBs)
